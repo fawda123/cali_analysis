@@ -1,0 +1,17 @@
+base
+knitr
+ggplot2
+RColorBrewer
+tidyr
+permute
+lattice
+vegan
+gridExtra
+FactoMineR
+ggord
+survival
+Formula
+Hmisc
+dplyr
+dendextend
+ggdendro
