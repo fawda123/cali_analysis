@@ -15,3 +15,10 @@ Hmisc
 dplyr
 dendextend
 ggdendro
+ggmap
+ggrepel
+bindrcpp
+tidyverse
+tibble
+readr
+purrr

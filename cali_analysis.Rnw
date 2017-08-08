@@ -39,6 +39,8 @@ library(FactoMineR)
 library(ggord)
 library(Hmisc)
 library(dplyr)
+library(ggmap)
+library(ggrepel)
 
 source('R/funcs.R')
 @
@@ -46,27 +48,55 @@ source('R/funcs.R')
 \linespread{1}
 
 \begin{document}
-\title{Analysis of 16S microbial sequencing data from a Southern Califoria WWTP discharge field}
+\title{Analysis of 16S microbial sequencing data from a Southern Califoria WWTP discharge fields}
 \maketitle
 
-Two datasets were used:
+<<echo = F, message = F, warning = F, fig.width = 6, fig.height = 6>>=
+data(dists)
 
-\begin{itemize}
-\item abundance by site, separated by taxonomic level
-\item environmental data by site, grouped by categories of PAH, environmental, contaminants, or metals
-\end{itemize}
+# LA sites
+toplo1 <- filter(dists, !wwtp %in% 'SDci')
+bbx <- make_bbox(lon = longitude, lat = latitude, data = toplo1, f = 0.2)
+bsmap <- ggmap::get_map(
+    location = bbx,
+    source = 'google',
+    messaging = FALSE
+    )
+
+ggmap(bsmap) + 
+  geom_point(data = toplo1, aes(x = longitude, y = latitude, colour = wwtp), size = 2) + 
+  geom_label_repel(data = toplo1, aes(x = longitude, y = latitude, label = site, colour = wwtp),
+    point.padding = grid::unit(0, "lines"), 
+    min.segment.length = grid::unit(0, 'lines'), 
+    box.padding = grid::unit(1, 'lines')
+  )
+
+# San Diego sites
+toplo2 <- filter(dists, wwtp %in% 'SDci')
+
+bbx <- make_bbox(lon = longitude, lat = latitude, data = toplo2, f = 10)
+bsmap <- ggmap::get_map(
+    location = bbx,
+    source = 'google',
+    messaging = FALSE
+    )
+
+ggmap(bsmap) + 
+  geom_point(data = toplo2, aes(x = longitude, y = latitude, colour = wwtp), size = 2) + 
+  geom_label_repel(data = toplo2, aes(x = longitude, y = latitude, label = site, colour = wwtp),
+    point.padding = grid::unit(0, "lines"), 
+    min.segment.length = grid::unit(0, 'lines'), 
+    box.padding = grid::unit(1, 'lines')
+  )
+@
 
 <<cache = F>>=
 load(file = 'data/abudat.RData')
 lapply(abudat, head)
-load(file = 'data/envdat.RData')
-head(envdat)
 @
 
-The analysis was conducted in two stages: 1) characterization of community structure and 2) constrained analyses to evaluate relationships between environmental characteristics and community structure.  The first set of analyses included basic statistical methods (e.g., abundance barplots, diversity measures, etc.) and more specific community-level analyses such as cluster analysis and ordination to characterize site-level variation.  Indirect gradient analyses were also used to describe groupings in the data, e.g., visual separation of ordination plots by factor groupings.  The second set of analyses  used direct gradient analyses to identify relationships between environmental data and community structure.  Specifically, redundancy analysis was used to group sites by taxonomic units while constraining the relationships by environmental parameters.  All analyses considered the effects of taxonomic resolution and the relative influence on conclusions with separate analyses by domain (archaea and bacteria).
-
 \section{Community structure}
-Basic barplots of abundance are shown first by identifying the top 10 most abundant species across all locations.  The remaining plots retain these species to visualize potential variation by municipal location (e.g., city of LA, LA county, etc.), site treatment designations from metadata (i.e., location relative to a WWTP outflow), and actual site designations.  These plots are produced as a visual comparison that may potentially explain results that follow.  The remaining figures attempt to identify community structure through taxonomic abundance alone by evaluating the data at different taxonomic resolutions (phylum, class, etc.) and different spatial groupings (individual sites, distance categories by outflow, etc.).  Clustering and ordination are used to reduce dimensionality of the data based on the underlying structure of the taxonomic information.  The objective of both analyses is to identify natural groupings in the data, where groupings could be defined by the different spatial categories and may also vary by taxonomic resolution.  Direct analyses related to environmental parameters could help explain this variation further.  Finally, the tables of alpha and beta diversity explain diversity at each location (alpha) and diversity across a gradient (beta, or diversity between spatial units).  Diversity can be measured several ways and additional estimates should be considered in further analyses.    
+ 
 <<abundall, fig.cap='Top fifty most abundant species across all study sites.', echo = F, fig.height = 4, fig.width =7, out.width = '0.8\\textwidth'>>=
 
 # get species
@@ -74,7 +104,7 @@ sppdat <- abudat$SPECIES
 
 # most abundant species, all sites
 toplo1 <- group_by(sppdat, species) %>% 
-  summarize(abund = sum(abund)) %>% 
+  summarise(abund = sum(abund)) %>% 
   arrange(-abund) %>% 
   .[1:10, ] %>% 
   mutate(species = factor(species, levels = species))
@@ -95,7 +125,7 @@ p1
 # most abundant species by muni
 toplo2 <- filter(sppdat, species %in% toplo1$species) %>% 
   group_by(species, wwtp) %>% 
-  summarize(abund = sum(abund)) %>% 
+  summarise(abund = sum(abund)) %>% 
   ungroup %>% 
   mutate(
     wwtp = factor(wwtp, levels = c('LAci', 'SDci','LAco', 'ORco'), 
@@ -120,7 +150,7 @@ p2
 <<abundcont, fig.cap='Species abundances by distance from pipe for the top fifty most abundant across all study sites in \\cref{fig:abundall}.  Treatments are based on relative distances from an outflow pipe (farthest, intermediate, closest) for each municipality.', echo = F, fig.height = 4, fig.width = 8, out.width = '0.8\\textwidth'>>=
 toplo3 <- filter(sppdat, species %in% toplo1$species) %>% 
   group_by(species, cont) %>% 
-  summarize(abund = sum(abund)) %>% 
+  summarise(abund = sum(abund)) %>% 
   ungroup %>% 
   mutate(
     cont = factor(cont, levels = c('far', 'int', 'clo'), 
@@ -148,7 +178,7 @@ p3
 # most abundant species, all sites
 toplo4 <- filter(sppdat, species %in% toplo1$species) %>% 
   group_by(species, site) %>% 
-  summarize(abund = sum(abund)) %>% 
+  summarise(abund = sum(abund)) %>% 
   ungroup %>% 
   mutate(
     site = factor(site, levels = paste0('CA', c(1, 2, 3, 4, 7, 8, 9, 11, 5, 10, 12, 6, 13, 14))),
@@ -183,7 +213,7 @@ archdat <- lapply(abudat, function(x) filter(x, domain == 'Archaea'))
 # base ggplot 
 pbase <- ggplot() +
   coord_flip() +
-  scale_y_reverse('Distance', expand=c(0.2, 0), limits = c(0.7, 0)) +
+  scale_y_reverse('Distance', expand=c(0.2, 0), limits = c(0.85, 0)) +
   scale_colour_brewer(palette = "Set1") +
   theme(
     panel.background = element_blank(), 
@@ -205,14 +235,15 @@ for(lev in levs){
   dat <- archdat[[lev]]
   names(dat)[1] <- 'level'
   dat <- select(dat, level, site, wwtp, cont, abund)
-  dat <- spread(dat, level, abund, fill = 0)
+  dat <- spread(dat, level, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
   row.names(dat) <- dat$site
   
   # clusts using all data
-  # hellinger transform for zeroes
+  # log transform for zeroes
   # create distance matrix
   datall <- select(dat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'hellinger') %>% 
+    decostand(method = 'log') %>% 
     vegdist(method = 'bray') %>% 
     hclust(method = 'average')
 
@@ -259,25 +290,26 @@ for(lev in levs){
   dat <- archdat[[lev]]
   names(dat)[1] <- 'level'
   dat <- select(dat, level, site, wwtp, cont, abund)
-  dat <- spread(dat, level, abund, fill = 0)
+  dat <- spread(dat, level, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
   row.names(dat) <- dat$site
   dat$wwtp <- factor(dat$wwtp, levels = c('LAci', 'SDci', 'LAco', 'ORco'), 
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
   )
   
   # clusts using all data
-  # hellinger transform for zeroes
+  # log transform for zeroes
   # create distance matrix
   datall <- select(dat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'hellinger') %>% 
+    decostand(method = 'log') %>% 
     metaMDS(distance = 'bray', trace = 0, autotransform = F, k = 2)
   
-  p <- ggord(datall, dat$wwtp, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 3, obslab = T) +
+  p <- ggord(datall, dat$wwtp, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 4, obslab = T, poly = F, ellipse_pro = 0.9) +
     scale_colour_brewer(palette = "Set1") +
     theme(legend.position = 'top', legend.title = element_blank()) + 
     ggtitle(tolower(lev)) +
-    scale_x_continuous('MDS1', limits = c(-1.5, 1.5)) +
-    scale_y_continuous('MDS2', limits = c(-1.15, 1.2))
+    scale_x_continuous('MDS1') +
+    scale_y_continuous('MDS2')
 
   pleg <- g_legend(p)
   p <- p + theme(legend.position = 'none')
@@ -303,25 +335,26 @@ for(lev in levs){
   dat <- archdat[[lev]]
   names(dat)[1] <- 'level'
   dat <- select(dat, level, site, wwtp, cont, abund)
-  dat <- spread(dat, level, abund, fill = 0)
+  dat <- spread(dat, level, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
   row.names(dat) <- dat$site
   dat$cont <- factor(dat$cont, levels = c('far', 'int', 'clo'), 
     labels = c('Farthest', 'Intermediate', 'Closest')
   )
   
   # clusts using all data
-  # hellinger transform for zeroes
+  # log transform for zeroes
   # create distance matrix
   datall <- select(dat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'hellinger') %>% 
+    decostand(method = 'log') %>% 
     metaMDS(distance = 'bray', trace = 0, autotransform = F, k = 2)
   
-  p <- ggord(datall, dat$cont, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 3, obslab = T) +
+  p <- ggord(datall, dat$cont, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 4, obslab = T, poly = F, ellipse_pro = 0.9) +
     scale_colour_brewer(palette = "Set1") +
     theme(legend.position = 'top', legend.title = element_blank()) + 
     ggtitle(tolower(lev)) +
-    scale_x_continuous('MDS1', limits = c(-1.3, 1.4)) +
-    scale_y_continuous('MDS2', limits = c(-0.8, 1))
+    scale_x_continuous('MDS1') + 
+    scale_y_continuous('MDS2') 
 
   pleg <- g_legend(p)
   p <- p + theme(legend.position = 'none')
@@ -356,19 +389,22 @@ for(lev in levs){
   # agg by wwtp
   dat_wwtp <- group_by(dat, level, wwtp) %>% 
     summarise(abund = sum(abund)) %>% 
-    spread(level, abund, fill = 0)
+    spread(level, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
   row.names(dat_wwtp) <- dat_wwtp$wwtp
   dat_wwtp <- select(dat_wwtp, -wwtp)
   
   # agg by cont
   dat_cont <- group_by(dat, level, cont) %>% 
     summarise(abund = sum(abund)) %>% 
-    spread(level, abund, fill = 0)
+    spread(level, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
   row.names(dat_cont) <- dat_cont$cont
   dat_cont <- select(dat_cont, -cont)
   
   # site level
-  dat_site <- spread(dat, level, abund, fill = 0)
+  dat_site <- spread(dat, level, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
   row.names(dat_site) <- dat_site$site
   dat_site <- select(dat_site, -site, -wwtp, -cont)
   
@@ -456,8 +492,6 @@ latex(
 
 \subsection{Multivariate analyses with bacteria}
 
-The above analyses (clustering, ordination, diversity) were repeated using only bacteria.  
-
 <<clust1_bac, fig.cap = "Site clusters of bacteria by taxonomic resolution.  Colors indicate municipality and superscripts indicate distance categories from an outflow pipe at each site (`f' is farthest, `c' is closest, none is intermediate).  Clustering was based on a Bray-Curtis dissimilarity matrix of abundance data and sorting using the unweighted pair group method.", out.width = '\\textwidth', fig.height = 8, fig.width = 8, echo = F>>=
 # vegan approach
 
@@ -469,7 +503,7 @@ bacdat <- lapply(abudat, function(x) filter(x, domain == 'Bacteria'))
 # base ggplot 
 pbase <- ggplot() +
   coord_flip() +
-  scale_y_reverse('Distance', expand=c(0.2, 0), limits = c(0.3, 0)) +
+  scale_y_reverse('Distance', expand=c(0.2, 0), limits = c(0.65, 0)) +
   scale_colour_brewer(palette = "Set1") +
   theme(
     panel.background = element_blank(), 
@@ -491,14 +525,15 @@ for(lev in levs){
   dat <- bacdat[[lev]]
   names(dat)[1] <- 'level'
   dat <- select(dat, level, site, wwtp, cont, abund)
-  dat <- spread(dat, level, abund, fill = 0)
+  dat <- spread(dat, level, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
   row.names(dat) <- dat$site
   
   # clusts using all data
-  # hellinger transform for zeroes
+  # log transform for zeroes
   # create distance matrix
   datall <- select(dat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'hellinger') %>% 
+    decostand(method = 'log') %>% 
     vegdist(method = 'bray') %>% 
     hclust(method = 'average')
 
@@ -545,25 +580,26 @@ for(lev in levs){
   dat <- bacdat[[lev]]
   names(dat)[1] <- 'level'
   dat <- select(dat, level, site, wwtp, cont, abund)
-  dat <- spread(dat, level, abund, fill = 0)
+  dat <- spread(dat, level, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
   row.names(dat) <- dat$site
   dat$wwtp <- factor(dat$wwtp, levels = c('LAci', 'SDci', 'LAco', 'ORco'), 
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
   )
   
   # clusts using all data
-  # hellinger transform for zeroes
+  # log transform for zeroes
   # create distance matrix
   datall <- select(dat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'hellinger') %>% 
+    decostand(method = 'log') %>% 
     metaMDS(distance = 'bray', trace = 0, autotransform = F, k = 2)
   
-  p <- ggord(datall, dat$wwtp, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 3, obslab = T) +
+  p <- ggord(datall, dat$wwtp, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 4, obslab = T, poly = F, ellipse_pro = 0.9) +
     scale_colour_brewer(palette = "Set1") +
     theme(legend.position = 'top', legend.title = element_blank()) + 
     ggtitle(tolower(lev)) +
-    scale_x_continuous('MDS1', limits = c(-0.35, 0.3)) +
-    scale_y_continuous('MDS2', limits = c(-0.15, 0.2))
+    scale_x_continuous('MDS1') + 
+    scale_y_continuous('MDS2')
 
   pleg <- g_legend(p)
   p <- p + theme(legend.position = 'none')
@@ -589,25 +625,26 @@ for(lev in levs){
   dat <- bacdat[[lev]]
   names(dat)[1] <- 'level'
   dat <- select(dat, level, site, wwtp, cont, abund)
-  dat <- spread(dat, level, abund, fill = 0)
+  dat <- spread(dat, level, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
   row.names(dat) <- dat$site
   dat$cont <- factor(dat$cont, levels = c('far', 'int', 'clo'), 
     labels = c('Farthest', 'Intermediate', 'Closest')
   )
   
   # clusts using all data
-  # hellinger transform for zeroes
+  # log transform for zeroes
   # create distance matrix
   datall <- select(dat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'hellinger') %>% 
+    decostand(method = 'log') %>% 
     metaMDS(distance = 'bray', trace = 0, autotransform = F, k = 2)
   
-  p <- ggord(datall, dat$cont, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 3, obslab = T) +
+  p <- ggord(datall, dat$cont, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 4, obslab = T, poly = F, ellipse_pro = 0.9) +
     scale_colour_brewer(palette = "Set1") +
     theme(legend.position = 'top', legend.title = element_blank()) + 
     ggtitle(tolower(lev)) +
-    scale_x_continuous('MDS1', limits = c(-0.24, 0.23)) +
-    scale_y_continuous('MDS2', limits = c(-0.17, 0.2))
+    scale_x_continuous('MDS1') +
+    scale_y_continuous('MDS2')
 
   pleg <- g_legend(p)
   p <- p + theme(legend.position = 'none')
@@ -642,19 +679,22 @@ for(lev in levs){
   # agg by wwtp
   dat_wwtp <- group_by(dat, level, wwtp) %>% 
     summarise(abund = sum(abund)) %>% 
-    spread(level, abund, fill = 0)
+    spread(level, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
   row.names(dat_wwtp) <- dat_wwtp$wwtp
   dat_wwtp <- select(dat_wwtp, -wwtp)
   
   # agg by cont
   dat_cont <- group_by(dat, level, cont) %>% 
     summarise(abund = sum(abund)) %>% 
-    spread(level, abund, fill = 0)
+    spread(level, abund, fill = 0) %>% 
+    data.frame(., stringsAsFactors = F)
   row.names(dat_cont) <- dat_cont$cont
   dat_cont <- select(dat_cont, -cont)
   
   # site level
-  dat_site <- spread(dat, level, abund, fill = 0)
+  dat_site <- spread(dat, level, abund, fill = 0) %>% 
+    data.frame(., stringsAsFactors = F)
   row.names(dat_site) <- dat_site$site
   dat_site <- select(dat_site, -site, -wwtp, -cont)
   
@@ -739,445 +779,5 @@ latex(
   )
 
 @
-
-\section{Identifying drivers of community structure}
-
-The environmental data was grouped by categories and summarized into principal components.  This was done to reduce the dimensionality of the data given the sample sizes.  The grouping categories included contaminants, environmental, and metals.  Sites and variables with more than 50\% of the data missing were removed.  Although plots are shows, stepwise variable selection of parameters in the constrained indicated that none of the principal component axes explained any significant portion of the variation in community composition. 
-
-<<eval = T, echo = F, fig.cap = 'Principal component axes for contaminants, environmental, and metals, grouped by municipality and distance from pipe.', fig.height = 10, fig.width = 8, out.width = '\\textwidth'>>=
-library(vegan)
-library(FactoMineR)
-
-data(envdat)
-
-pcx <- lapply(envdat, function(x){
-
-  tomod <- x[, -c(1:3)]
-  row.names(tomod) <- x$site
-  PCA(tomod, graph = FALSE)
-  
-})
-
-txt <- 2
-arrow <- 0.1
-p1 <- ggord(pcx[[1]], grp_in = envdat[[1]]$wwtp, obslab = T, ellipse = F, coord_fix = F, txt = txt, arrow = arrow) + ggtitle('Contaminants')
-p2 <- ggord(pcx[[1]], grp_in = envdat[[1]]$cont, obslab = T, ellipse = F, coord_fix = F, txt = txt, arrow = arrow) + ggtitle('Contaminants')
-p3 <- ggord(pcx[[2]], grp_in =  envdat[[1]]$wwtp, obslab = T, ellipse = F, coord_fix = F, txt = txt, arrow = arrow) + ggtitle('Environmental')
-p4 <- ggord(pcx[[2]], grp_in =  envdat[[1]]$cont, obslab = T, ellipse = F, coord_fix = F, txt = txt, arrow = arrow) + ggtitle('Environmental')
-p5 <- ggord(pcx[[3]], grp_in =  envdat[[1]]$wwtp, obslab = T, ellipse = F, coord_fix = F, txt = txt, arrow = arrow) + ggtitle('Metals')
-p6 <- ggord(pcx[[3]], grp_in =  envdat[[1]]$cont, obslab = T, ellipse = F, coord_fix = F, txt = txt, arrow = arrow) + ggtitle('Metals')
-
-grid.arrange(p1, p2, p3, p4, p5, p6, ncol = 2)
-@
-
-Constrained ordination analyses (RDA using site x species matrix and site by environmental matrix as PC scores) was used to relate archaea and bacterial communities to the environmental categories.  This was done for species and orders.
-<<eval = T, echo = F, fig.cap = 'Constrained ordination analyses (RDA) of species level data in relation to principal component axes that describe contaminants, environmental, and metals data.  Separate analyses for archaea and bacteria are shown, with site codes grouped by municipality and distance from pipe.', fig.height = 14, fig.width = 11, out.width = '\\textwidth'>>=
-
-library(vegan)
-library(FactoMineR)
-
-data(envdatpca)
-data(abudat)
-
-# subset abundance data by domain, species level
-abudatarc <- abudat[['SPECIES']] %>% 
-  filter(domain == 'Archaea')
-
-abudatbac <- abudat[['SPECIES']] %>% 
-  filter(domain == 'Bacteria')
-
-# archaea mod
-arc <- dplyr::select(abudatarc, species, site, wwtp, cont, abund)
-arc <- arc[arc$site %in% envdatpca$site, ]
-arc <- spread(arc, species, abund, fill = 0)
-row.names(arc) <- arc$site
-arc <- dplyr::select(arc, -site, -wwtp, -cont) %>% 
-  decostand(method = 'hellinger')
-modarc <- rda(arc ~ con1 + env1 + env2 + met1, data = envdatpca[, -c(1:3)])
-
-# bacteria mod
-modbac <- dplyr::select(abudatbac, species, site, wwtp, cont, abund)
-modbac <- modbac[modbac$site %in% envdatpca$site, ]
-modbac <- spread(modbac, species, abund, fill = 0)
-row.names(modbac) <- modbac$site
-modbac <- dplyr::select(modbac, -site, -wwtp, -cont) %>% 
-  decostand(method = 'hellinger')
-modbac <- rda(modbac, envdatpca[, -c(1:3)])
-
-addsize <- 0.5
-p1 <- ggord(modarc, grp_in = envdatpca$wwtp, ellipse = F, obslab = T, addsize = addsize) + ggtitle('Archaea')
-p2 <- ggord(modarc, grp_in = envdatpca$cont, ellipse = F, obslab = T, addsize = addsize) + ggtitle('Archaea')
-p3 <- ggord(modbac, grp_in = envdatpca$wwtp, ellipse = F, obslab = T, addsize = addsize) + ggtitle('Bacteria')
-p4 <- ggord(modbac, grp_in = envdatpca$cont, ellipse = F, obslab = T, addsize = addsize) + ggtitle('Bacteria')
-
-grid.arrange(p1, p2, p3, p4, ncol = 2)
-@
-
-<<eval = T, echo = F, fig.cap = 'Constrained ordination analyses (RDA) of orders in relation to principal component axes that describe contaminants, environmental, and metals data.  Separate analyses for archaea and bacteria are shown, with site codes grouped by municipality and distance from pipe.', fig.height = 14, fig.width = 11, out.width = '\\textwidth'>>=
-
-library(vegan)
-library(FactoMineR)
-
-data(envdatpca)
-data(abudat)
-
-# subset abundance data by domain, order level
-abudatarc <- abudat[['ORDER']] %>% 
-  filter(domain == 'Archaea')
-
-abudatbac <- abudat[['ORDER']] %>% 
-  filter(domain == 'Bacteria')
-
-# archaea mod
-modarc <- dplyr::select(abudatarc, order, site, wwtp, cont, abund)
-modarc <- modarc[modarc$site %in% envdatpca$site, ]
-modarc <- spread(modarc, order, abund, fill = 0)
-row.names(modarc) <- modarc$site
-modarc <- dplyr::select(modarc, -site, -wwtp, -cont) %>% 
-  decostand(method = 'hellinger')
-modarc <- rda(modarc, envdatpca[, -c(1:3)])
-
-# bacteria mod
-modbac <- dplyr::select(abudatbac, order, site, wwtp, cont, abund)
-modbac <- modbac[modbac$site %in% envdatpca$site, ]
-modbac <- spread(modbac, order, abund, fill = 0)
-row.names(modbac) <- modbac$site
-modbac <- dplyr::select(modbac, -site, -wwtp, -cont) %>% 
-  decostand(method = 'hellinger')
-modbac <- rda(modbac, envdatpca[, -c(1:3)])
-
-addsize <- 0.5
-p1 <- ggord(modarc, grp_in = envdatpca$wwtp, ellipse = F, obslab = T, addsize = addsize) + ggtitle('Archaea')
-p2 <- ggord(modarc, grp_in = envdatpca$cont, ellipse = F, obslab = T, addsize = addsize) + ggtitle('Archaea')
-p3 <- ggord(modbac, grp_in = envdatpca$wwtp, ellipse = F, obslab = T, addsize = addsize) + ggtitle('Bacteria')
-p4 <- ggord(modbac, grp_in = envdatpca$cont, ellipse = F, obslab = T, addsize = addsize) + ggtitle('Bacteria')
-
-grid.arrange(p1, p2, p3, p4, ncol = 2)
-@
-\clearpage
-
-\subsubsection{Analyses by municipality}
-
-The above analyses were repeated separately for each municipality. 
-
-<<eval = T, echo = F, fig.cap = 'Principal component axes for contaminants, environmental, and metals, grouped by distance from pipe and separate analyses for each wastewater treatment plant.', fig.height = 10, fig.width = 8, out.width = '\\textwidth'>>=
-
-data(envdat)
-muni <- unique(envdat[[1]]$wwtp)
-categ <- names(envdat)
-grd <- expand.grid(muni, categ)
-names(grd) <- c('muni', 'categ')
-
-txt <- 2
-arrow <- 0.1
-
-pcx <- vector('list', length = nrow(grd))
-names(pcx) <- paste(grd[, 1], grd[, 2], sep = '_')
-
-for(i in 1:nrow(grd)){
-    
-  muni <- grd[i, 'muni']
-  categ <- grd[i, 'categ']
-  
-  tomod <- envdat[[categ]]
-  tomod <- tomod[tomod$wwtp %in% muni, ]
-  row.names(tomod) <- tomod$site
-  mod <- PCA(tomod[, -c(1:3)], graph = FALSE)
-  nms <- paste(muni, categ, sep = '_')
-  
-  plt <- ggord(mod, grp_in = tomod$cont, obslab = T, ellipse = F, coord_fix = F, txt = txt, arrow = arrow) + 
-    ggtitle(gsub('_', ', ', nms)) + 
-    theme(legend.position = 'top')
-  
-  if(i == 1) pleg <- g_legend(plt)
-  
-  plt <- plt + theme(legend.position = 'none')
-  
-  pcx[[nms]] <- mod
-  
-  assign(paste0('p', i), plt)
-  
-}
-
-grid.arrange(
-  pleg,
-  arrangeGrob(p1, p2, p3, p4, p5, p6, p7, p8, p9, ncol = 3), 
-  ncol = 1, heights = c(0.1, 1)
-)
-@
-
-<<eval = T, echo = F, fig.cap = 'Constrained ordination analyses (RDA) of species level data in relation to principal component axes that describe contaminants, environmental, and metals data.  Separate analyses for each municipality and taxonomic groupings of archaea and bacteria are shown.  Site colors indicate approximate distance from pipe.', fig.height = 14, fig.width = 11, out.width = '\\textwidth'>>=
-
-data(envdatpca_muni)
-data(abudat)
-
-# subset abundance data by domain, species level
-abudatarc <- abudat[['SPECIES']] %>% 
-  filter(domain == 'Archaea')
-
-abudatbac <- abudat[['SPECIES']] %>% 
-  filter(domain == 'Bacteria')
-
-munis <- names(envdatpca_muni)
-
-addsize <- 0.5
-
-# create rda mods for each municipality, archaea
-for(muni in munis){
-  
-  axs <- envdatpca_muni[[muni]]
-  
-  # archaea mod
-  arcdat <- dplyr::select(abudatarc, species, site, wwtp, cont, abund) %>% 
-    filter(site %in% axs$site)
-  arcdat <- spread(arcdat, species, abund, fill = 0)
-  row.names(arcdat) <- arcdat$site
-  arc <- dplyr::select(arcdat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'hellinger')
-  formin <- paste('arc ~', paste(names(axs[, -c(1:2)]), collapse = ' + '))
-  modarc <- rda(as.formula(formin), data = axs[, -c(1:2)])
-
-  nm <- paste(muni, 'archaea', sep = ', ')
-  plt <- ggord(modarc, grp_in = arcdat$cont, ellipse = F, obslab = T, addsize = addsize) + 
-    ggtitle(nm) +
-    theme(legend.position = 'top')
-  
-  if(muni == 'LAco') pleg <- g_legend(plt)
-  
-  plt <- plt + theme(legend.position = 'none')
-  
-  assign(paste0('p', which(muni == munis), 'arc'), plt)
-    
-}
-    
-# create rda mods for each municipality, bacteria
-for(muni in munis){
-  
-  axs <- envdatpca_muni[[muni]]
-  
-  # archaea mod
-  bacdat <- dplyr::select(abudatbac, species, site, wwtp, cont, abund) %>% 
-    filter(site %in% axs$site)
-  bacdat <- spread(bacdat, species, abund, fill = 0)
-  row.names(bacdat) <- bacdat$site
-  bac <- dplyr::select(bacdat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'hellinger')
-  formin <- paste('bac~', paste(names(axs[, -c(1:2)]), collapse = ' + '))
-  modbac <- rda(as.formula(formin), data = axs[, -c(1:2)])
-
-  nm <- paste(muni, 'bacteria', sep = ', ')
-  plt <- ggord(modbac, grp_in = bacdat$cont, ellipse = F, obslab = T, addsize = addsize) + 
-    ggtitle(nm) + 
-    theme(legend.position = 'none')
-  
-  assign(paste0('p', which(muni == munis), 'bac'), plt)
-    
-}
-
-grid.arrange(
-  pleg, 
-  arrangeGrob(p1arc, p1bac, p2arc, p2bac, p3arc, p3bac, ncol = 2),
-  ncol = 1,
-  heights = c(0.1, 1)
-)
-@
-
-\clearpage
-
-<<echo = F, results = 'hide', eval = F>>=
-library(vegan)
-library(FactoMineR)
-
-data(envdatpca)
-data(abudat)
-
-# subset abundance data by domain, species level
-abudatarc <- abudat[['SPECIES']] %>% 
-  filter(domain == 'Archaea')
-
-abudatbac <- abudat[['SPECIES']] %>% 
-  filter(domain == 'Bacteria')
-
-# archaea mod, species
-arc <- dplyr::select(abudatarc, species, site, wwtp, cont, abund)
-arc <- arc[arc$site %in% envdatpca$site, ]
-arc <- spread(arc, species, abund, fill = 0)
-row.names(arc) <- arc$site
-arc <- dplyr::select(arc, -site, -wwtp, -cont) %>% 
-  decostand(method = 'hellinger')
-
-mod1 <- rda(arc ~ ., data = envdatpca[, -c(1:3)])
-mod0 <- rda(arc ~ 1, data = envdatpca[, -c(1:3)])
-fin_arcspp <- step(mod1, scope = list(lower = formula(mod0), upper = formula(mod1)), test = 'perm')
-
-# bacteria mod, species
-bac <- dplyr::select(abudatbac, species, site, wwtp, cont, abund)
-bac <- bac[bac$site %in% envdatpca$site, ]
-bac <- spread(bac, species, abund, fill = 0)
-row.names(bac) <- bac$site
-bac <- dplyr::select(bac, -site, -wwtp, -cont) %>% 
-  decostand(method = 'hellinger') 
-
-mod1 <- rda(bac ~ ., data = envdatpca[, -c(1:3)])
-mod0 <- rda(bac ~ 1, data = envdatpca[, -c(1:3)])
-tmp <- step(mod0, scope = formula(mod1), test = 'perm')
-
-fin_bacspp <- step(mod1, scope = list(lower = formula(mod0), upper = formula(mod1)), test = 'perm')
-@
-
-<<echo = F, results = 'hide', eval = F>>=
-data(envdatpca_muni)
-data(abudat)
-
-# subset abundance data by domain, species level
-abudatarc <- abudat[['SPECIES']] %>% 
-  filter(domain == 'Archaea')
-
-abudatbac <- abudat[['SPECIES']] %>% 
-  filter(domain == 'Bacteria')
-
-munis <- names(envdatpca_muni)
-
-addsize <- 0.5
-
-# create rda mods for each municipality, archaea
-modsarc <- NULL
-for(muni in munis){
-  
-  axs <- envdatpca_muni[[muni]]
-  
-  # archaea mod
-  arcdat <- dplyr::select(abudatarc, species, site, wwtp, cont, abund) %>% 
-    filter(site %in% axs$site)
-  arcdat <- spread(arcdat, species, abund, fill = 0)
-  row.names(arcdat) <- arcdat$site
-  arc <- dplyr::select(arcdat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'hellinger')
-
-  mod1 <- rda(arc ~ ., data = axs[, -c(1:2)])
-  mod0 <- rda(arc ~ 1, data = axs[, -c(1:2)])
-  modfin <- step(mod0, scope = formula(mod1))
- 
-  out <- list(modfin)
-  names(out) <- muni
-  modsarc <- c(modsarc, out)
-    
-}
-  
-# create rda mods for each municipality, bacteria
-modsbac <- NULL
-for(muni in munis){
-  
-  axs <- envdatpca_muni[[muni]]
-  
-  # bacteria mod
-  bacdat <- dplyr::select(abudatbac, species, site, wwtp, cont, abund) %>% 
-    filter(site %in% axs$site)
-  bacdat <- spread(bacdat, species, abund, fill = 0)
-  row.names(bacdat) <- bacdat$site
-  bac <- dplyr::select(bacdat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'hellinger')
-
-  mod1 <- rda(bac ~ ., data = axs[, -c(1:2)])
-  mod0 <- rda(bac ~ 1, data = axs[, -c(1:2)])
-  modfin <- step(mod0, scope = formula(mod1), test = 'perm')
-  # modfin <- step(mod1, scope = list(lower = formula(mod0), upper = formula(mod1)), test = 'perm')
-  
-  out <- list(modfin)
-  names(out) <- muni
-  modsbac <- c(modsbac, out)
-    
-}
- 
-@
-
-\section{Diversity and distance from pipe}
-
-Diversity measures were evaluated in relation to euclidean distance from the end of a WWTP outflow pipe.  Sites at each municipality that were closest to each pipe were assumed to be zero distance.  The distances of all other sites in relation to the closest pipe were measured as euclidean straight-line distance.
-<<alphdist, echo = F, fig.height = 5, fig.width = 8, fig.cap = 'Alpha diversity by taxonomic groupings as a function of distance from an outflow pipe at each location.  Lines are locally estimated polynomial smooths.'>>=
-data(dists)
-data(abudat)
-alldat <- lapply(abudat, function(x) filter(x, domain %in% c('Archaea', 'Bacteria')))
-
-levs <- names(alldat)[-c(1:3)]
-alphs <- vector('list', length = length(levs))
-names(alphs) <- levs
-for(lev in levs){
-  
-  dat <- alldat[[lev]]
-  names(dat)[1] <- 'level'
-  dat <- select(dat, level, site, wwtp, cont, abund, domain)
-
-  # site level
-  alph_site <- split(dat, dat$domain) %>% 
-    lapply(., function(x){
-      tmp <- spread(x, level, abund, fill = 0)
-      row.names(tmp) <- tmp$site
-      tmp <- select(tmp, -site, -wwtp, -cont, -domain)
-      fisher.alpha(tmp)
-    }) %>% 
-    data.frame %>% 
-    mutate(site = row.names(.))
-      
-  
-  alphs[[lev]] <- alph_site
-
-}
-
-##
-# arrange alpha diversity for table
-
-tmpa <- reshape2::melt(alphs) %>% 
-  mutate(L1 = factor(L1,
-    levels = c('PHYLUM', 'CLASS', 'ORDER', 'FAMILY', 'GENUS', 'SPECIES'),
-    labels = c('Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species')
-    )
-  ) %>% 
-  rename(tax = L1, Alpha = value) %>% 
-  left_join(., dists, by = 'site') %>% 
-  rename(Distance = dists)
-
-p1 <- ggplot(tmpa, aes(x = log(1 + Distance), y = Alpha, group = tax, colour = wwtp)) + 
-  geom_text(aes(label = site), size = 3) + 
-  theme_bw() + 
-  stat_smooth(se = FALSE, span = 1) +
-  facet_grid(variable ~ tax, scales = 'free_y') + 
-  theme(legend.position = 'top')
-p1 
-@
-
-\section{Interpretation}
-
-Results can be interpreted by considering differences in site groupings potentially related to municipality, distance from pipe, taxonomic resolution, and domain partitions.  Alpha (within a location) and beta diversity (between locations) should also be considered based on these groupings.  Metadata at each site were insufficient to describe community composition.   
-
-Effect of taxonomic resolution:
-\begin{itemize}
-\item Greater distinction between sites, municipalities, and diversity was achieved with higher taxonomic resolution.
-\item Differences between archaea and bacteria were observed, with archae community showing greater distinction getween sites and municipalities, although bacteria diversity was larger
-\end{itemize}
-
-Differences between municipalities:
-\begin{itemize}
-\item Municipalities showed stronger groupings in archaea vs bacteria
-\item For both archaea and bacteria, Orange County was most distinct
-\end{itemize}
-
-Differences relative to outflow:
-\begin{itemize}
-\item Categorical descriptions of site location relative to pipes (far, intermediate, close) were coarse as groupings were not obvious in either the cluster or ordination analyses, however...
-\item Archaea diversity was maximized at a moderate distance from sewage outflow, whereas bacteria diversity was minimized.  This is shown in the diversity tables as well as \cref{fig:alphdist}.
-\end{itemize}
-
-Differences between site:
-\begin{itemize}
-\item By far, the greatest differences in beta diversity was between sites, i.e., community composition varied the most between sites as compared to differences between municipalities or distance from outflows.  
-\item Some sites were routinely outliers in the analyses, e.g., CA13 for bacteria
-\end{itemize}
-
-Effects of metadata:
-\begin{itemize}
-\item No conclusions - PCA suggested extreme collinearity in variable categories as well as extreme outliers for some sites.
-\item Stepwise variable selection in constrained ordination analyses did not include any parameters, i.e., ordination of community composition was not better explained by constraining with metadata.
-\end{itemize}
 
 \end{document}

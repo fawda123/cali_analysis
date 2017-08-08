@@ -1,0 +1,191 @@
+\documentclass[letterpaper,12pt]{article}
+\usepackage[top=1in,bottom=1in,left=1in,right=1in]{geometry}
+\usepackage{setspace}
+\usepackage[colorlinks=true,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\usepackage{indentfirst}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage[final]{animate}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{rotating}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{subfig} 
+\usepackage[noae]{Sweave}
+\usepackage{cleveref}
+\usepackage[figureposition=bottom]{caption}
+\usepackage{paralist}
+\usepackage{acronym}
+\usepackage{outlines}
+\usepackage{pdflscape}
+
+% knitr options
+<<setup, echo = FALSE, cache = F>>=
+library(knitr)
+# set global chunk options
+opts_chunk$set(fig.path = 'figs/', fig.align = 'center', fig.show = 'hold', message = F, dev = c('pdf', 'tiff'), dev.args = list(pdf = list(family = 'serif'), tiff = list(compression = 'lzw', family = 'serif')), dpi = 600, fig.pos = '!ht', warning = F, tangle = TRUE, cache = TRUE,
+   fig.process = function(x) {
+    x2 = sub('-\\d+([.][a-z]+)$', '\\1', x)
+    if (file.rename(x, x2)) x2 else x}
+  )
+options(replace.assign = TRUE, width = 75)
+@
+
+% housekeeping
+<<echo = F, message = F, results = F, cache = F, warning = F>>=
+library(tidyverse)
+library(RColorBrewer)
+library(vegan)
+library(gridExtra)
+library(FactoMineR)
+library(ggord)
+library(Hmisc)
+library(ggmap)
+library(ggrepel)
+library(dendextend)
+library(ggdendro)
+library(vegan)
+
+source('R/funcs.R')
+@
+
+\linespread{1}
+
+\begin{document}
+
+<<cache = F, echo = F>>=
+# data processing
+load(file = 'data/abudat.RData')
+gendat <- abudat$GENUS
+
+# rename site labels
+sitlev <- c('CA1', 'CA10', 'CA11', 'CA12', 'CA13', 'CA14', 'CA2', 'CA3', 'CA4', 'CA5', 'CA6', 'CA7', 'CA8', 'CA9')
+citlab <- c('LAco', 'ORco', 'SDci', 'ORco', 'LAci', 'LAci', 'LAco', 'LAco', 'LAco', 'ORco', 'LAci', 'SDci', 'SDci', 'SDci')
+citlab <- toupper(citlab)
+cntlab <- c('i', 'i', 'i', 'c', 'i', 'f', 'c', 'i2', 'f', 'f', 'c', 'c', 'f', 'i2')
+cntlab <- paste0('[', toupper(cntlab), ']')
+sitlab <- paste(citlab, cntlab)
+sitexp <- paste0('expression(', sitlab, ')')
+
+gendat <- gendat %>% 
+  ungroup %>% 
+  mutate(site = factor(site, levels = sitlev, labels = sitlab))
+@
+
+
+<<clust1_arch, fig.cap = "Site clusters and ordinations of microbial genera by domain.  Colors indicate municipality and subscripts indicate distance categories from an outflow pipe at each site (`F' is farthest, `C' is closest, `I' is intermediate).  Clustering was based on a Bray-Curtis dissimilarity matrix of abundance data and sorting using the unweighted pair group method.  Ordinations were based on multi-dimensional scaling with two axes for the same data.  Abundance data were log-transformed prior to analysis. LACI: City of LA, SDCI: City of San Diego, LACO: LA County, ORCO: Orange County.", out.width = '\\textwidth', fig.height = 8, fig.width = 8, echo = F>>=
+# vegan approach
+
+doms <- c('Archaea', 'Bacteria')
+
+# base ggplot 
+pbase <- ggplot() +
+  scale_y_continuous('Distance', limits = c(-0.05, 0.4)) +
+  scale_colour_brewer(palette = "Set1") +
+  theme(
+    panel.background = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    legend.position = 'top', 
+    legend.title = element_blank(),
+    legend.key = element_blank()
+    )
+
+lims <- list(
+  Archaea = c(-0.35, 0.35),
+  Bacteria = c(-0.2, 0.32)
+)
+
+for(dom in doms){
+
+  # format 
+  dat <- gendat[gendat$domain %in% dom, ]
+  dat <- select(dat, genus, site, wwtp, cont, abund)
+  dat <- spread(dat, genus, abund, fill = 0) %>% 
+    as.data.frame(stringAsFactors = F)
+  row.names(dat) <- dat$site
+
+  ##
+  # clustering
+  
+  # clusts using all data
+  # log transform for zeroes
+  # create distance matrix
+  datall <- select(dat, -site, -wwtp, -cont) %>% 
+    decostand(method = 'log') %>% 
+    vegdist(method = 'bray') %>% 
+    hclust(method = 'average')
+
+  hcdata <- dendro_data(datall, type="rectangle")
+  
+  labs <- select(dat, site, wwtp, cont)
+  hcdata$labels <- merge(x = hcdata$labels, y = labs,  by.x = 'label', by.y = 'site')
+  
+  hcdata$labels$wwtp <- factor(hcdata$labels$wwtp, levels = c('LAci', 'SDci', 'LAco', 'ORco'), 
+    labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
+  )
+
+  p <- pbase + 
+    guides(color = guide_legend(title = 'Municipality')) +
+    geom_segment(data=segment(hcdata), aes(x=x, y=y, xend=xend, yend=yend)) +
+    geom_text(data = hcdata$labels, aes(x=x, y=y, label=label, colour = wwtp, hjust=0), size=4, parse = T, angle = 90, hjust = 1) + 
+    ggtitle(toupper(dom)) + 
+    theme(legend.position = 'none')
+
+  assign(paste0('p', dom, 'cls'), p)
+  
+  ##
+  # ordination
+  ord <- select(dat, -site, -wwtp, -cont) %>% 
+    decostand(method = 'log') %>% 
+    metaMDS(distance = 'bray', trace = 0, autotransform = F, k = 2)
+  
+  dat$wwtp <- factor(dat$wwtp, levels = c('LAci', 'SDci', 'LAco', 'ORco'), 
+    labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
+  )
+  
+  p <- ggord(ord, dat$wwtp, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 4, obslab = T, ellipse = F, 
+      hull = T, parse = T, poly = F, ellipse_pro = 0.95, alpha = 0.8) +
+    scale_colour_brewer(palette = "Set1") +
+    theme(
+      legend.position = 'none', 
+      axis.title.y = element_blank()
+      ) + 
+    scale_x_continuous('MDS1',limits = lims[[dom]])  +
+    scale_y_continuous(limits = lims[[dom]])
+
+  assign(paste0('p', dom, 'ord'), p)
+  
+}
+
+# legend
+p <- ggplot(dat, aes(x = wwtp, y = wwtp, colour = wwtp)) + 
+  theme_minimal() +
+  geom_point(pch = 15) + 
+  theme(
+    legend.position = 'top', 
+    legend.title = element_blank()
+  ) + 
+  scale_colour_brewer(palette = 'Set1')
+pleg <- g_legend(p)
+
+# combine all
+grid.arrange(
+  arrangeGrob(pArchaeacls, pBacteriacls, ncol = 2, left = 'Distance'), 
+  pleg,
+  arrangeGrob(pArchaeaord, pBacteriaord, ncol = 2, left = 'MDS2'), 
+  ncol = 1, 
+  heights = c(1, 0.05, 1)
+)
+
+@
+
+
+
+\end{document}
