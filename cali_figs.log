@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2013.8.29)  8 AUG 2017 09:25
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2013.8.29)  10 AUG 2017 13:49
 entering extended mode
 **cali_figs.tex
 (M:\docs\manuscripts\cali_analysis\cali_figs.tex
@@ -629,41 +629,45 @@ LaTeX Info: Redefining \nameref on input line 81.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package color Info: Redefining color shadecolor on input line 87.
 
-<figs/clust1_arch.pdf, id=3, 578.16pt x 578.16pt>
+<figs/sites.jpg, id=3, 614.295pt x 614.295pt>
+File: figs/sites.jpg Graphic file (type jpg)
+ <use figs/sites.jpg>
+Package pdftex.def Info: figs/sites.jpg used on input line 84.
+(pdftex.def)             Requested size: 469.75502pt x 469.75604pt.
+Package color Info: Redefining color shadecolor on input line 91.
+
+<figs/clust1_arch.pdf, id=4, 578.16pt x 578.16pt>
 File: figs/clust1_arch.pdf Graphic file (type pdf)
  <use figs/clust1_arch.pdf>
-Package pdftex.def Info: figs/clust1_arch.pdf used on input line 89.
+Package pdftex.def Info: figs/clust1_arch.pdf used on input line 93.
 (pdftex.def)             Requested size: 469.75502pt x 469.75385pt.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 101.
-Package atenddvi Info: Last page = 1.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 103.
 
-[1
-
-{C:/Users/mbeck/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map} <M:/docs/man
-uscripts/cali_analysis/figs/clust1_arch.pdf>]
-Package atveryend Info: Executing hook `AfterLastShipout' on input line 101.
-
-(M:\docs\manuscripts\cali_analysis\cali_figs.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 101.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 101.
+[1{C:/Users/mbeck/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map} <M:/docs/m
+anuscripts/cali_analysis/figs/sites.jpg>]
+Package atenddvi Info: Last page = 2.
+ [2 <M:/docs/manuscripts/cali_analysis/figs/clust1_arch.pdf>]
+Package atveryend Info: Executing hook `AfterLastShipout' on input line 103.
+ (M:\docs\manuscripts\cali_analysis\cali_figs.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 103.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 103.
 Package rerunfilecheck Info: File `cali_figs.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 101.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 103.
  ) 
 Here is how much of TeX's memory you used:
- 10646 strings out of 493921
- 173793 string characters out of 3147282
- 299516 words of memory out of 3000000
- 13798 multiletter control sequences out of 15000+200000
+ 10650 strings out of 493921
+ 173845 string characters out of 3147282
+ 300516 words of memory out of 3000000
+ 13799 multiletter control sequences out of 15000+200000
  3938 words of font info for 15 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 44i,6n,42p,720b,357s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 44i,6n,42p,720b,361s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb>
-Output written on cali_figs.pdf (1 page, 26219 bytes).
+Output written on cali_figs.pdf (2 pages, 907717 bytes).
 PDF statistics:
- 25 PDF objects out of 1000 (max. 8388607)
- 3 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 30 PDF objects out of 1000 (max. 8388607)
+ 4 named destinations out of 1000 (max. 500000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

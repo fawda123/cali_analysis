@@ -11,8 +11,8 @@ library(FactoMineR)
 # add site meta (from ignore folder)
 site_meta <- data.frame(
   site = paste0('CA', c(1, 2, 3, 4, 7, 8, 9, 11, 5, 10, 12, 6, 13, 14)),
-  wwtp = c(rep('LAco', 4), rep('SDci', 4), rep('ORco', 3), rep('LAci', 3)), 
-  cont = c('int', 'clo', 'int', 'far', 'clo', 'far', 'int', 'int', 'far', 'int', 'clo', 'clo', 'int', 'far'),  # int intermediate, clo closest to pip,  far farthest from pipe
+  wwtp = c(rep('LACO', 4), rep('SDCI', 4), rep('ORCO', 3), rep('LACI', 3)), 
+  cont = c('int', 'clo', 'int', 'far', 'clo', 'far', 'int', 'int', 'far', 'int', 'clo', 'clo', 'far', 'int'),  # int intermediate, clo closest to pip,  far farthest from pipe
   stringsAsFactors = F
 )
 
@@ -105,8 +105,8 @@ envdat <- gather(envdat, 'parameters', 'val', -site) %>%
 # add site meta (from ignore folder)
 site_meta <- data.frame(
   site = paste0('CA', c(1, 2, 3, 4, 7, 8, 9, 11, 5, 10, 12, 6, 13, 14)),
-  wwtp = c(rep('LAco', 4), rep('SDci', 4), rep('ORco', 3), rep('LAci', 3)), 
-  cont = c('int', 'clo', 'int', 'far', 'clo', 'far', 'int', 'int', 'far', 'int', 'clo', 'clo', 'int', 'far'),  # int intermediate, clo closest to pip,  far farthest from pipe
+  wwtp = c(rep('LACO', 4), rep('SDCI', 4), rep('ORCO', 3), rep('LACI', 3)), 
+  cont = c('int', 'clo', 'int', 'far', 'clo', 'far', 'int', 'int', 'far', 'int', 'clo', 'clo', 'far', 'int'),  # int intermediate, clo closest to pip,  far farthest from pipe
   stringsAsFactors = F
 )
 envdat <- right_join(site_meta, envdat, by = 'site')
@@ -228,8 +228,8 @@ save(envdatpca_muni, file = 'data/envdatpca_muni.RData')
 # add site meta (from ignore folder)
 site_meta <- data.frame(
   site = paste0('CA', c(1, 2, 3, 4, 7, 8, 9, 11, 5, 10, 12, 6, 13, 14)),
-  wwtp = c(rep('LAco', 4), rep('SDci', 4), rep('ORco', 3), rep('LAci', 3)), 
-  cont = c('int', 'clo', 'int', 'far', 'clo', 'far', 'int', 'int', 'far', 'int', 'clo', 'clo', 'int', 'far'),  # int intermediate, clo closest to pip,  far farthest from pipe
+  wwtp = c(rep('LACO', 4), rep('SDCI', 4), rep('ORCO', 3), rep('LACI', 3)), 
+  cont = c('int', 'clo', 'int', 'far', 'clo', 'far', 'int', 'int', 'far', 'int', 'clo', 'clo', 'far', 'int'),  # int intermediate, clo closest to pip,  far farthest from pipe
   stringsAsFactors = F
 )
 

@@ -55,7 +55,7 @@ source('R/funcs.R')
 data(dists)
 
 # LA sites
-toplo1 <- filter(dists, !wwtp %in% 'SDci')
+toplo1 <- filter(dists, !wwtp %in% 'SDCI')
 bbx <- make_bbox(lon = longitude, lat = latitude, data = toplo1, f = 0.2)
 bsmap <- ggmap::get_map(
     location = bbx,
@@ -72,7 +72,7 @@ ggmap(bsmap) +
   )
 
 # San Diego sites
-toplo2 <- filter(dists, wwtp %in% 'SDci')
+toplo2 <- filter(dists, wwtp %in% 'SDCI')
 
 bbx <- make_bbox(lon = longitude, lat = latitude, data = toplo2, f = 10)
 bsmap <- ggmap::get_map(
@@ -128,7 +128,7 @@ toplo2 <- filter(sppdat, species %in% toplo1$species) %>%
   summarise(abund = sum(abund)) %>% 
   ungroup %>% 
   mutate(
-    wwtp = factor(wwtp, levels = c('LAci', 'SDci','LAco', 'ORco'), 
+    wwtp = factor(wwtp, levels = c('LACI', 'SDCI','LACO', 'ORCO'), 
       labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')), 
     species = factor(species, levels = levels(toplo1$species))
   )
@@ -256,7 +256,7 @@ for(lev in levs){
   hcdata$labels$label <- as.character(hcdata$labels$label)
   hcdata$labels$label[far] <- paste0(hcdata$labels$label[far], '^f')
   hcdata$labels$label[clo] <- paste0(hcdata$labels$label[clo], '^c')
-  hcdata$labels$wwtp <- factor(hcdata$labels$wwtp, levels = c('LAci', 'SDci', 'LAco', 'ORco'), 
+  hcdata$labels$wwtp <- factor(hcdata$labels$wwtp, levels = c('LACI', 'SDCI', 'LACO', 'ORCO'), 
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
   )
 
@@ -293,7 +293,7 @@ for(lev in levs){
   dat <- spread(dat, level, abund, fill = 0) %>% 
     as.data.frame(stringAsFactors = F)
   row.names(dat) <- dat$site
-  dat$wwtp <- factor(dat$wwtp, levels = c('LAci', 'SDci', 'LAco', 'ORco'), 
+  dat$wwtp <- factor(dat$wwtp, levels = c('LACI', 'SDCI', 'LACO', 'ORCO'), 
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
   )
   
@@ -436,7 +436,7 @@ tmpa$level <- factor(row.names(tmpa),
 tmpa <- gather(tmpa, 'grouping', 'alphs', -level) %>% 
   spread(level, alphs) %>% 
   mutate(grouping = factor(grouping, 
-    levels = c('LAci', 'SDci', 'LAco', 'ORco', 'far', 'int', 'clo', paste0('CA', c(1, 2, 3, 4, 7, 8, 9, 11, 5, 10, 12, 6, 13, 14))), 
+    levels = c('LACI', 'SDCI', 'LACO', 'ORCO', 'far', 'int', 'clo', paste0('CA', c(1, 2, 3, 4, 7, 8, 9, 11, 5, 10, 12, 6, 13, 14))), 
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County', 'Farthest', 'Intermediate', 'Closest', paste0('CA', c(1, 2, 3, 4, 7, 8, 9, 11, 5, 10, 12, 6, 13, 14)))
     )
   ) %>% 
@@ -546,7 +546,7 @@ for(lev in levs){
   hcdata$labels$label <- as.character(hcdata$labels$label)
   hcdata$labels$label[far] <- paste0(hcdata$labels$label[far], '^f')
   hcdata$labels$label[clo] <- paste0(hcdata$labels$label[clo], '^c')
-  hcdata$labels$wwtp <- factor(hcdata$labels$wwtp, levels = c('LAci', 'SDci', 'LAco', 'ORco'), 
+  hcdata$labels$wwtp <- factor(hcdata$labels$wwtp, levels = c('LACI', 'SDCI', 'LACO', 'ORCO'), 
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
   )
 
@@ -583,7 +583,7 @@ for(lev in levs){
   dat <- spread(dat, level, abund, fill = 0) %>% 
     as.data.frame(stringAsFactors = F)
   row.names(dat) <- dat$site
-  dat$wwtp <- factor(dat$wwtp, levels = c('LAci', 'SDci', 'LAco', 'ORco'), 
+  dat$wwtp <- factor(dat$wwtp, levels = c('LACI', 'SDCI', 'LACO', 'ORCO'), 
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
   )
   
@@ -726,7 +726,7 @@ tmpa$level <- factor(row.names(tmpa),
 tmpa <- gather(tmpa, 'grouping', 'alphs', -level) %>% 
   spread(level, alphs) %>% 
   mutate(grouping = factor(grouping, 
-    levels = c('LAci', 'SDci', 'LAco', 'ORco', 'far', 'int', 'clo', paste0('CA', c(1, 2, 3, 4, 7, 8, 9, 11, 5, 10, 12, 6, 13, 14))), 
+    levels = c('LACI', 'SDCI', 'LACO', 'ORCO', 'far', 'int', 'clo', paste0('CA', c(1, 2, 3, 4, 7, 8, 9, 11, 5, 10, 12, 6, 13, 14))), 
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County', 'Farthest', 'Intermediate', 'Closest', paste0('CA', c(1, 2, 3, 4, 7, 8, 9, 11, 5, 10, 12, 6, 13, 14)))
     )
   ) %>% 

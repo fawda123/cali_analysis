@@ -54,6 +54,11 @@ source('R/funcs.R')
 
 \begin{document}
 
+\begin{figure}
+\includegraphics[width = \textwidth]{figs/sites.jpg}
+\caption{Sampling stations grouped by municipality and approximate distance from wastewater treatment plant outflow pipes. Distances are close (clo), intermediate (int), and far. Municipalities are city of Los Angeles (LACI), city of San Diego (SDCI), Los Angeles County (LACO), and Orange County (ORCO).} 
+\end{figure}
+
 <<cache = F, echo = F>>=
 # data processing
 load(file = 'data/abudat.RData')
@@ -61,9 +66,8 @@ gendat <- abudat$GENUS
 
 # rename site labels
 sitlev <- c('CA1', 'CA10', 'CA11', 'CA12', 'CA13', 'CA14', 'CA2', 'CA3', 'CA4', 'CA5', 'CA6', 'CA7', 'CA8', 'CA9')
-citlab <- c('LAco', 'ORco', 'SDci', 'ORco', 'LAci', 'LAci', 'LAco', 'LAco', 'LAco', 'ORco', 'LAci', 'SDci', 'SDci', 'SDci')
-citlab <- toupper(citlab)
-cntlab <- c('i', 'i', 'i', 'c', 'i', 'f', 'c', 'i2', 'f', 'f', 'c', 'c', 'f', 'i2')
+citlab <- c('LACO', 'ORCO', 'SDCI', 'ORCO', 'LACI', 'LACI', 'LACO', 'LACO', 'LACO', 'ORCO', 'LACI', 'SDCI', 'SDCI', 'SDCI')
+cntlab <- c('i', 'i', 'i', 'c', 'f', 'i', 'c', 'i2', 'f', 'f', 'c', 'c', 'f', 'i2')
 cntlab <- paste0('[', toupper(cntlab), ']')
 sitlab <- paste(citlab, cntlab)
 sitexp <- paste0('expression(', sitlab, ')')
@@ -72,7 +76,6 @@ gendat <- gendat %>%
   ungroup %>% 
   mutate(site = factor(site, levels = sitlev, labels = sitlab))
 @
-
 
 <<clust1_arch, fig.cap = "Site clusters and ordinations of microbial genera by domain.  Colors indicate municipality and subscripts indicate distance categories from an outflow pipe at each site (`F' is farthest, `C' is closest, `I' is intermediate).  Clustering was based on a Bray-Curtis dissimilarity matrix of abundance data and sorting using the unweighted pair group method.  Ordinations were based on multi-dimensional scaling with two axes for the same data.  Abundance data were log-transformed prior to analysis. LACI: City of LA, SDCI: City of San Diego, LACO: LA County, ORCO: Orange County.", out.width = '\\textwidth', fig.height = 8, fig.width = 8, echo = F>>=
 # vegan approach
@@ -127,7 +130,7 @@ for(dom in doms){
   labs <- select(dat, site, wwtp, cont)
   hcdata$labels <- merge(x = hcdata$labels, y = labs,  by.x = 'label', by.y = 'site')
   
-  hcdata$labels$wwtp <- factor(hcdata$labels$wwtp, levels = c('LAci', 'SDci', 'LAco', 'ORco'), 
+  hcdata$labels$wwtp <- factor(hcdata$labels$wwtp, levels = c('LACI', 'SDCI', 'LACO', 'ORCO'), 
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
   )
 
@@ -146,7 +149,7 @@ for(dom in doms){
     decostand(method = 'log') %>% 
     metaMDS(distance = 'bray', trace = 0, autotransform = F, k = 2)
   
-  dat$wwtp <- factor(dat$wwtp, levels = c('LAci', 'SDci', 'LAco', 'ORco'), 
+  dat$wwtp <- factor(dat$wwtp, levels = c('LACI', 'SDCI', 'LACO', 'ORCO'), 
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
   )
   
@@ -185,7 +188,5 @@ grid.arrange(
 )
 
 @
-
-
 
 \end{document}
