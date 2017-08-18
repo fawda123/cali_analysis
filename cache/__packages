@@ -22,3 +22,7 @@ tidyverse
 tibble
 readr
 purrr
+pander
+MASS
+memisc
+stringi

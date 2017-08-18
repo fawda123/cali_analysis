@@ -46,7 +46,9 @@ library(ggrepel)
 library(dendextend)
 library(ggdendro)
 library(vegan)
-
+library(pander)
+library(memisc)
+library(stringi)
 source('R/funcs.R')
 @
 
@@ -72,9 +74,18 @@ cntlab <- paste0('[', toupper(cntlab), ']')
 sitlab <- paste(citlab, cntlab)
 sitexp <- paste0('expression(', sitlab, ')')
 
+# genera data, master file
 gendat <- gendat %>% 
   ungroup %>% 
   mutate(site = factor(site, levels = sitlev, labels = sitlab))
+
+# genera by archea
+arcdat <- gendat %>% 
+  filter(domain %in% 'Archaea')
+
+# genera by bacteria
+bacdat <- gendat %>% 
+  filter(domain %in% 'Bacteria')
 @
 
 <<clust1_arch, fig.cap = "Site clusters and ordinations of microbial genera by domain.  Colors indicate municipality and subscripts indicate distance categories from an outflow pipe at each site (`F' is farthest, `C' is closest, `I' is intermediate).  Clustering was based on a Bray-Curtis dissimilarity matrix of abundance data and sorting using the unweighted pair group method.  Ordinations were based on multi-dimensional scaling with two axes for the same data.  Abundance data were log-transformed prior to analysis. LACI: City of LA, SDCI: City of San Diego, LACO: LA County, ORCO: Orange County.", out.width = '\\textwidth', fig.height = 8, fig.width = 8, echo = F>>=
@@ -109,7 +120,7 @@ for(dom in doms){
 
   # format 
   dat <- gendat[gendat$domain %in% dom, ]
-  dat <- select(dat, genus, site, wwtp, cont, abund)
+  dat <- dplyr::select(dat, genus, site, wwtp, cont, abund)
   dat <- spread(dat, genus, abund, fill = 0) %>% 
     as.data.frame(stringAsFactors = F)
   row.names(dat) <- dat$site
@@ -120,14 +131,14 @@ for(dom in doms){
   # clusts using all data
   # log transform for zeroes
   # create distance matrix
-  datall <- select(dat, -site, -wwtp, -cont) %>% 
+  datall <- dplyr::select(dat, -site, -wwtp, -cont) %>% 
     decostand(method = 'log') %>% 
     vegdist(method = 'bray') %>% 
     hclust(method = 'average')
 
   hcdata <- dendro_data(datall, type="rectangle")
   
-  labs <- select(dat, site, wwtp, cont)
+  labs <- dplyr::select(dat, site, wwtp, cont)
   hcdata$labels <- merge(x = hcdata$labels, y = labs,  by.x = 'label', by.y = 'site')
   
   hcdata$labels$wwtp <- factor(hcdata$labels$wwtp, levels = c('LACI', 'SDCI', 'LACO', 'ORCO'), 
@@ -145,7 +156,7 @@ for(dom in doms){
   
   ##
   # ordination
-  ord <- select(dat, -site, -wwtp, -cont) %>% 
+  ord <- dplyr::select(dat, -site, -wwtp, -cont) %>% 
     decostand(method = 'log') %>% 
     metaMDS(distance = 'bray', trace = 0, autotransform = F, k = 2)
   
@@ -187,6 +198,183 @@ grid.arrange(
   heights = c(1, 0.05, 1)
 )
 
+@
+
+<<abundwwtp, fig.cap='Top ten genera by OTU abundance grouped by domain and municipality of wastewater treatment plants.', echo = F, fig.height = 9, fig.width = 8, out.width = '\\textwidth'>>=
+
+# most abundant species, all sites
+toplo1 <- gendat %>% 
+  dplyr::select(domain, wwtp, genus, abund) %>% 
+  group_by(domain, wwtp, genus) %>% 
+  summarise(abund = sum(abund)) %>% 
+  group_by(domain, wwtp) %>% 
+  nest %>% 
+  mutate(
+    subdat = map(data, function(x){
+      
+    arrange(x, -abund) %>% 
+        .[1:10, ]
+      
+    })
+  ) %>% 
+  dplyr::select(-data) %>% 
+  unnest %>% 
+  ungroup %>% 
+  mutate(
+    genord = stri_rand_strings(n = nrow(.), length = 9),
+    genord = factor(genord, levels = genord),
+    genus = gsub('_', ' ', genus)
+  )
+
+levels(toplo1$genord) <- toplo1$genus
+
+p1 <- ggplot(toplo1, aes(x = genord, y = abund, fill = abund)) + 
+  geom_bar(stat = 'identity', colour = 'black') + 
+  ylab('Abundance') + 
+  facet_wrap(wwtp ~ domain, ncol = 2, scales = 'free') + 
+  theme_bw() + 
+  scale_fill_gradientn(colours = brewer.pal(9, 'Blues')) +
+  theme(legend.position = "none", 
+    axis.title.y = element_blank(),
+    axis.text.y = element_text(size = 6)
+    )+ 
+  coord_flip()
+p1
+@
+\clearpage
+
+<<abundcont, fig.cap='Top ten genera by OTU abundance grouped by approximate distance from wastewater treatment outflows.', echo = F, fig.height = 7, fig.width = 8, out.width = '\\textwidth'>>=
+
+# most abundant species, all sites
+toplo2 <- gendat %>% 
+  dplyr::select(domain, cont, genus, abund) %>% 
+  group_by(domain, cont, genus) %>% 
+  summarise(abund = sum(abund)) %>% 
+  group_by(domain, cont) %>% 
+  nest %>% 
+  mutate(
+    subdat = map(data, function(x){
+      
+    arrange(x, -abund) %>% 
+        .[1:10, ]
+      
+    })
+  ) %>% 
+  dplyr::select(-data) %>% 
+  unnest %>% 
+  ungroup %>% 
+  mutate(
+    genord = stri_rand_strings(n = nrow(.), length = 9),
+    genord = factor(genord, levels = genord),
+    genus = gsub('_', ' ', genus),
+    cont = factor(cont, levels = c('clo', 'int', 'far'), labels = c('Close', 'Intermediate', 'Far'))
+  )
+levels(toplo2$genord) <- toplo2$genus
+
+p2 <- ggplot(toplo2, aes(x = genord, y = abund, fill = abund)) + 
+  geom_bar(stat = 'identity', colour = 'black') + 
+  ylab('Abundance') + 
+  facet_wrap(cont ~ domain, ncol = 2, scales = 'free') + 
+  theme_bw() + 
+  scale_fill_gradientn(colours = brewer.pal(9, 'Blues')) +
+  theme(legend.position = "none", 
+    axis.title.y = element_blank(),
+    axis.text.y = element_text(size = 6)
+    )+ 
+  coord_flip()
+p2
+@
+\clearpage
+
+\clearpage
+% ANOVA wwtp
+<<boxdivwwtp, echo = F, message = F, warning = F, fig.height = 4, fig.width = 6, fig.cap = "Estimates of Fisher's alpha diversity for archaea and bacteria genera grouped by municipality of wastewater treatment plant. Alpha was was based on methods in Fisher et al. (1943) that measure diversity as a function of richness and abundance at a site.">>=
+
+alph <- gendat %>% 
+  dplyr::select(domain, site, genus, abund) %>% 
+  group_by(domain) %>% 
+  nest %>% 
+  mutate(alph = map(data, function(x){
+    
+    out <- x %>% 
+      spread(genus, abund) %>% 
+      as.data.frame(stringsAsFactors = F)
+    row.names(out) <- out$site
+    out <- out %>% 
+      dplyr::select(-site) %>% 
+      fisher.alpha %>% 
+      enframe(name = 'site', value = 'alph')
+      
+    return(out)
+    
+    })
+  ) %>% 
+  dplyr::select(-data) %>% 
+  unnest %>% 
+  mutate(
+    wwtp = gsub('\\s.*$', '', site),
+    cont = gsub('^.*\\s', '', site), 
+    cont = gsub('[0-9]|\\[|\\]', '', cont), 
+    cont = factor(cont, levels = c('C', 'I', 'F'), labels = c('Closest', 'Intermediate', 'Farthest'))
+    )
+
+# get anova mods
+mods <- group_by(alph, domain) %>% 
+  nest %>% 
+  mutate(
+    reswwtp = map(data, function(x){
+      
+      mod <- lm(alph ~ wwtp, data = x)
+  
+      return(mod)
+      
+    }), 
+    rescont = map(data, function(x){
+      
+      mod <- lm(alph ~ cont, data = x)
+  
+      return(mod)
+      
+    })
+  ) %>% 
+  dplyr::select(-data)
+
+pwwtp <- ggplot(alph, aes(x = wwtp, y = alph)) + 
+  geom_boxplot() + 
+  geom_jitter(width = 0.2, colour = 'darkgrey', size = 1, alpha = 0.6) + 
+  facet_wrap(~ domain, scales = 'free_y', ncol = 1) + 
+  theme_bw() +
+  scale_x_discrete('Municipality') + 
+  scale_y_continuous("Fisher's Alpha Diversity")
+pwwtp
+
+tab <- mtable(
+  'Archaea' = mods[mods$domain %in% 'Archaea', ]$reswwtp[[1]],
+  'Bacteria' = mods[mods$domain %in% 'Bacteria', ]$reswwtp[[1]],
+  summary.stats = c('N', 'R-squared', 'F', 'p'), 
+  digits = 3
+)
+tab
+@
+
+\clearpage
+% alpha by pipe
+<<boxdivcont, echo = F, message = F, warning = F, fig.height = 4, fig.width = 6,  fig.cap = "Estimates of Fisher's alpha diversity for archaea and bacteria genera grouped by approximate distance from wastewater outflow pipes. Alpha was was based on methods in Fisher et al. (1943) that measure diversity as a function of richness and abundance at a site.">>=
+pcont <- ggplot(alph, aes(x = cont, y = alph)) + 
+  geom_boxplot() + 
+  geom_jitter(width = 0.2, colour = 'darkgrey', size = 1, alpha = 0.6) + 
+  facet_wrap(~ domain, scales = 'free_y', ncol = 1) + 
+  theme_bw() + 
+  scale_x_discrete('Distance from outflow') + 
+  scale_y_continuous("Fisher's Alpha Diversity")
+pcont
+tab <- mtable(
+  'Archaea' = mods[mods$domain %in% 'Archaea', ]$rescont[[1]],
+  'Bacteria' = mods[mods$domain %in% 'Bacteria', ]$rescont[[1]],
+  summary.stats = c('N', 'R-squared', 'F', 'p'), 
+  digits = 3
+)
+tab
 @
 
 \end{document}
