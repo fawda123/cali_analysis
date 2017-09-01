@@ -49,6 +49,7 @@ library(vegan)
 library(pander)
 library(memisc)
 library(stringi)
+library(stargazer)
 source('R/funcs.R')
 @
 
@@ -69,7 +70,7 @@ gendat <- abudat$GENUS
 # rename site labels
 sitlev <- c('CA1', 'CA10', 'CA11', 'CA12', 'CA13', 'CA14', 'CA2', 'CA3', 'CA4', 'CA5', 'CA6', 'CA7', 'CA8', 'CA9')
 citlab <- c('LACO', 'ORCO', 'SDCI', 'ORCO', 'LACI', 'LACI', 'LACO', 'LACO', 'LACO', 'ORCO', 'LACI', 'SDCI', 'SDCI', 'SDCI')
-cntlab <- c('i', 'i', 'i', 'c', 'f', 'i', 'c', 'i2', 'f', 'f', 'c', 'c', 'f', 'i2')
+cntlab <- c('i1', 'i1', 'i1', 'c', 'f', 'i1', 'c', 'i2', 'f', 'f', 'c', 'c', 'f', 'i2')
 cntlab <- paste0('[', toupper(cntlab), ']')
 sitlab <- paste(citlab, cntlab)
 sitexp <- paste0('expression(', sitlab, ')')
@@ -202,6 +203,10 @@ grid.arrange(
 
 <<abundwwtp, fig.cap='Top ten genera by OTU abundance grouped by domain and municipality of wastewater treatment plants.', echo = F, fig.height = 9, fig.width = 8, out.width = '\\textwidth'>>=
 
+# colors
+colfun <- RColorBrewer::brewer.pal(9, 'Blues') %>% 
+  colorRampPalette
+
 # most abundant species, all sites
 toplo1 <- gendat %>% 
   dplyr::select(domain, wwtp, genus, abund) %>% 
@@ -221,29 +226,65 @@ toplo1 <- gendat %>%
   unnest %>% 
   ungroup %>% 
   mutate(
-    genord = stri_rand_strings(n = nrow(.), length = 9),
-    genord = factor(genord, levels = genord),
-    genus = gsub('_', ' ', genus)
-  )
+    genus = gsub('_', ' ', genus), 
+    cols = colfun(length(abund))[rank(abund)]
+  ) %>% 
+  split(., .[, c('domain', 'wwtp')])
 
-levels(toplo1$genord) <- toplo1$genus
+for(i in seq_along(names(toplo1))){
+  
+  tmp <- toplo1[[i]] %>% 
+    arrange(abund) %>% 
+    mutate(genus = factor(genus, levels = genus))
+  
+  
+  p <- ggplot(tmp, aes(x = genus, y = abund, fill = abund)) + 
+    geom_bar(stat = 'identity', colour = 'black', fill = tmp$cols) + 
+    ylab('Abundance') + 
+    facet_wrap(wwtp ~ domain, ncol = 2, scales = 'free') + 
+    theme_bw() + 
+    scale_fill_gradientn(colours = brewer.pal(9, 'Blues')) +
+    theme(legend.position = "none", 
+      axis.title.y = element_blank(),
+      axis.text.y = element_text(size = 6), 
+      axis.title.x = element_blank()
+      )+ 
+    coord_flip()
+  
+  assign(paste0('p', i), p) 
+  
+}
 
-p1 <- ggplot(toplo1, aes(x = genord, y = abund, fill = abund)) + 
-  geom_bar(stat = 'identity', colour = 'black') + 
-  ylab('Abundance') + 
-  facet_wrap(wwtp ~ domain, ncol = 2, scales = 'free') + 
-  theme_bw() + 
-  scale_fill_gradientn(colours = brewer.pal(9, 'Blues')) +
-  theme(legend.position = "none", 
-    axis.title.y = element_blank(),
-    axis.text.y = element_text(size = 6)
-    )+ 
-  coord_flip()
-p1
+# Get the widths
+pA <- ggplot_gtable(ggplot_build(p1))
+pB <- ggplot_gtable(ggplot_build(p2))
+pC <- ggplot_gtable(ggplot_build(p3))
+pD <- ggplot_gtable(ggplot_build(p4))
+pE <- ggplot_gtable(ggplot_build(p5))
+pF <- ggplot_gtable(ggplot_build(p6))
+pG <- ggplot_gtable(ggplot_build(p7))
+pH <- ggplot_gtable(ggplot_build(p8))
+maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3], pD$widths[2:3], pE$widths[2:3], pF$widths[2:3], pG$widths[2:3], pH$widths[2:3])
+
+# Set the widths
+pA$widths[2:3] <- maxWidth
+pB$widths[2:3] <- maxWidth
+pC$widths[2:3] <- maxWidth
+pD$widths[2:3] <- maxWidth
+pE$widths[2:3] <- maxWidth
+pF$widths[2:3] <- maxWidth
+pG$widths[2:3] <- maxWidth
+pH$widths[2:3] <- maxWidth
+
+grid.arrange(pA, pB, pC, pD, pE, pF, pG, pH, ncol = 2, bottom = 'Abundance')
 @
 \clearpage
 
 <<abundcont, fig.cap='Top ten genera by OTU abundance grouped by approximate distance from wastewater treatment outflows.', echo = F, fig.height = 7, fig.width = 8, out.width = '\\textwidth'>>=
+
+# colors
+colfun <- RColorBrewer::brewer.pal(9, 'Blues') %>% 
+  colorRampPalette
 
 # most abundant species, all sites
 toplo2 <- gendat %>% 
@@ -264,25 +305,54 @@ toplo2 <- gendat %>%
   unnest %>% 
   ungroup %>% 
   mutate(
-    genord = stri_rand_strings(n = nrow(.), length = 9),
-    genord = factor(genord, levels = genord),
     genus = gsub('_', ' ', genus),
-    cont = factor(cont, levels = c('clo', 'int', 'far'), labels = c('Close', 'Intermediate', 'Far'))
-  )
-levels(toplo2$genord) <- toplo2$genus
+    cont = factor(cont, levels = c('clo', 'int', 'far'), labels = c('Close', 'Intermediate', 'Far')), 
+    cols = colfun(length(abund))[rank(abund)]
+  ) %>% 
+  split(., .[, c('domain', 'cont')])
 
-p2 <- ggplot(toplo2, aes(x = genord, y = abund, fill = abund)) + 
-  geom_bar(stat = 'identity', colour = 'black') + 
-  ylab('Abundance') + 
-  facet_wrap(cont ~ domain, ncol = 2, scales = 'free') + 
-  theme_bw() + 
-  scale_fill_gradientn(colours = brewer.pal(9, 'Blues')) +
-  theme(legend.position = "none", 
-    axis.title.y = element_blank(),
-    axis.text.y = element_text(size = 6)
-    )+ 
-  coord_flip()
-p2
+for(i in seq_along(names(toplo2))){
+  
+  tmp <- toplo2[[i]] %>% 
+    arrange(abund) %>% 
+    mutate(genus = factor(genus, levels = genus))
+  
+  
+  p <- ggplot(tmp, aes(x = genus, y = abund, fill = abund)) + 
+    geom_bar(stat = 'identity', colour = 'black', fill = tmp$cols) + 
+    ylab('Abundance') + 
+    facet_wrap(cont ~ domain, ncol = 2, scales = 'free') + 
+    theme_bw() + 
+    scale_fill_gradientn(colours = brewer.pal(9, 'Blues')) +
+    theme(legend.position = "none", 
+      axis.title.y = element_blank(),
+      axis.text.y = element_text(size = 6), 
+      axis.title.x = element_blank()
+      )+ 
+    coord_flip()
+  
+  assign(paste0('p', i), p) 
+  
+}
+
+# Get the widths
+pA <- ggplot_gtable(ggplot_build(p1))
+pB <- ggplot_gtable(ggplot_build(p2))
+pC <- ggplot_gtable(ggplot_build(p3))
+pD <- ggplot_gtable(ggplot_build(p4))
+pE <- ggplot_gtable(ggplot_build(p5))
+pF <- ggplot_gtable(ggplot_build(p6))
+maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3], pD$widths[2:3], pE$widths[2:3], pF$widths[2:3])
+
+# Set the widths
+pA$widths[2:3] <- maxWidth
+pB$widths[2:3] <- maxWidth
+pC$widths[2:3] <- maxWidth
+pD$widths[2:3] <- maxWidth
+pE$widths[2:3] <- maxWidth
+pF$widths[2:3] <- maxWidth
+
+grid.arrange(pA, pB, pC, pD, pE, pF, ncol = 2, bottom = 'Abundance')
 @
 \clearpage
 
@@ -347,15 +417,15 @@ pwwtp <- ggplot(alph, aes(x = wwtp, y = alph)) +
   scale_x_discrete('Municipality') + 
   scale_y_continuous("Fisher's Alpha Diversity")
 pwwtp
-
-tab <- mtable(
-  'Archaea' = mods[mods$domain %in% 'Archaea', ]$reswwtp[[1]],
-  'Bacteria' = mods[mods$domain %in% 'Bacteria', ]$reswwtp[[1]],
-  summary.stats = c('N', 'R-squared', 'F', 'p'), 
-  digits = 3
-)
-tab
 @
+<<echo = F, results = 'asis'>>=
+stargazer(mods$reswwtp, column.labels = c('Bacteria', 'Archaea'), 
+  dep.var.labels.include = F, intercept.bottom = F, model.numbers = F, 
+  dep.var.caption = 'Models', covariate.labels = c('Constant (LACI)', 'LACO', 'ORCO', 'SDCI'), 
+  title = "Summary of analysis of variance results for bacteria and archaea diversity by municipality.  Diversity measures were based on Fisher's Alpha (Fisher et al. 1943) using abundance of genera at each site. The model intercept is the average diversity estimate (standard error in parentheses) at LACI and the remaining municipalities are referenced accordingly."
+  )
+@
+
 
 \clearpage
 % alpha by pipe
@@ -368,13 +438,13 @@ pcont <- ggplot(alph, aes(x = cont, y = alph)) +
   scale_x_discrete('Distance from outflow') + 
   scale_y_continuous("Fisher's Alpha Diversity")
 pcont
-tab <- mtable(
-  'Archaea' = mods[mods$domain %in% 'Archaea', ]$rescont[[1]],
-  'Bacteria' = mods[mods$domain %in% 'Bacteria', ]$rescont[[1]],
-  summary.stats = c('N', 'R-squared', 'F', 'p'), 
-  digits = 3
-)
-tab
+@
+<<echo = F, results = 'asis'>>=
+stargazer(mods$rescont, column.labels = c('Bacteria', 'Archaea'), 
+  dep.var.labels.include = F, intercept.bottom = F, model.numbers = F, 
+  dep.var.caption = 'Models', covariate.labels = c('Constant (close)', 'Intermediate', 'Farthest'), 
+  title = "Summary of analysis of variance results for bacteria and archaea diversity with distance from outflow.  Diversity measures were based on Fisher's Alpha (Fisher et al. 1943) using abundance of genera at each site. The model intercept is the average diversity estimate (standard error in parentheses) at all close sites and the remaining parameter estimates (intermediate and farthest) are referenced accordingly."
+  )
 @
 
 \end{document}

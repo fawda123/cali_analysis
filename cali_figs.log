@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2013.8.29)  18 AUG 2017 18:00
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2013.8.29)  1 SEP 2017 13:42
 entering extended mode
 **cali_figs.tex
 (M:\docs\manuscripts\cali_analysis\cali_figs.tex
@@ -552,7 +552,14 @@ Package pdflscape Info: Auto-detected driver: pdftex on input line 80.
 Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
 tim
 )
-(M:\docs\manuscripts\cali_analysis\cali_figs.aux)
+(M:\docs\manuscripts\cali_analysis\cali_figs.aux
+
+LaTeX Warning: Label `' multiply defined.
+
+
+LaTeX Warning: Label `@cref' multiply defined.
+
+)
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 81.
 LaTeX Font Info:    ... okay on input line 81.
 LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 81.
@@ -569,8 +576,7 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 81.
 LaTeX Font Info:    ... okay on input line 81.
 LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 81.
 LaTeX Font Info:    Try loading font information for TS1+cmr on input line 81.
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
+ ("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
 File: ts1cmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    ... okay on input line 81.
@@ -670,49 +676,63 @@ Package color Info: Redefining color shadecolor on input line 134.
 <figs/boxdivwwtp.pdf, id=47, 433.62pt x 289.08pt>
 File: figs/boxdivwwtp.pdf Graphic file (type pdf)
  <use figs/boxdivwwtp.pdf>
-Package pdftex.def Info: figs/boxdivwwtp.pdf used on input line 161.
+Package pdftex.def Info: figs/boxdivwwtp.pdf used on input line 136.
 (pdftex.def)             Requested size: 433.61894pt x 289.09251pt.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 151.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 151.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 151.
 
 [5
 
 
-] [6 <M:/docs/manuscripts/cali_analysis/figs/boxdivwwtp.pdf>]
-Package color Info: Redefining color shadecolor on input line 174.
+ <M:/docs/manuscripts/cali_analysis/figs/boxdivwwtp.pdf>] [6]
+Package color Info: Redefining color shadecolor on input line 187.
 
-<figs/boxdivcont.pdf, id=67, 433.62pt x 289.08pt>
+<figs/boxdivcont.pdf, id=72, 433.62pt x 289.08pt>
 File: figs/boxdivcont.pdf Graphic file (type pdf)
  <use figs/boxdivcont.pdf>
-Package pdftex.def Info: figs/boxdivcont.pdf used on input line 199.
+Package pdftex.def Info: figs/boxdivcont.pdf used on input line 189.
 (pdftex.def)             Requested size: 433.61894pt x 289.09251pt.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 209.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 233.
 
 [7
 
-]
+ <M:/docs/manuscripts/cali_analysis/figs/boxdivcont.pdf>]
 Package atenddvi Info: Last page = 8.
- [8 <M:/docs/manuscripts/cali_analysis/figs/boxdivcont.pdf>]
-Package atveryend Info: Executing hook `AfterLastShipout' on input line 209.
+ [8]
+Package atveryend Info: Executing hook `AfterLastShipout' on input line 233.
 
 (M:\docs\manuscripts\cali_analysis\cali_figs.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 209.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 209.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 233.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 233.
 Package rerunfilecheck Info: File `cali_figs.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 209.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 233.
  ) 
 Here is how much of TeX's memory you used:
- 10698 strings out of 493921
- 174664 string characters out of 3147282
- 304516 words of memory out of 3000000
- 13831 multiletter control sequences out of 15000+200000
- 4107 words of font info for 16 fonts, out of 3000000 for 9000
+ 10725 strings out of 493921
+ 174940 string characters out of 3147282
+ 303516 words of memory out of 3000000
+ 13849 multiletter control sequences out of 15000+200000
+ 6723 words of font info for 24 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 44i,6n,42p,720b,361s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Pro
-gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on cali_figs.pdf (8 pages, 957055 bytes).
+ 44i,10n,42p,720b,363s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Pr
+ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Fil
+es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX 
+2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/font
+s/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
+ublic/amsfonts/cm/cmti12.pfb>
+Output written on cali_figs.pdf (8 pages, 987749 bytes).
 PDF statistics:
- 100 PDF objects out of 1000 (max. 8388607)
- 15 named destinations out of 1000 (max. 500000)
+ 118 PDF objects out of 1000 (max. 8388607)
+ 17 named destinations out of 1000 (max. 500000)
  31 words of extra memory for PDF output out of 10000 (max. 10000000)
 
