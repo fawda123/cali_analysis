@@ -90,11 +90,11 @@
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!ht]
 
-{\centering \includegraphics[width=\textwidth]{figs/clust1_arch} 
+{\centering \includegraphics[width=0.5\textwidth]{figs/clust1_arch} 
 
 }
 
-\caption[Site clusters and ordinations of microbial genera by domain]{Site clusters and ordinations of microbial genera by domain.  Colors indicate municipality and subscripts indicate distance categories from an outflow pipe at each site (`F' is farthest, `C' is closest, `I' is intermediate).  Clustering was based on a Bray-Curtis dissimilarity matrix of abundance data and sorting using the unweighted pair group method.  Ordinations were based on multi-dimensional scaling with two axes for the same data.  Abundance data were log-transformed prior to analysis. LACI: City of LA, SDCI: City of San Diego, LACO: LA County, ORCO: Orange County.}\label{fig:clust1_arch}
+\caption[Site clusters and ordinations of microbial genera]{Site clusters and ordinations of microbial genera.  Colors indicate municipality and subscripts indicate distance categories from an outflow pipe at each site (`F' is farthest, `C' is closest, `I' is intermediate).  Clustering was based on a Bray-Curtis dissimilarity matrix of abundance data and sorting using the unweighted pair group method.  Ordinations were based on multi-dimensional scaling with two axes for the same data.  Abundance data were log-transformed prior to analysis. LACI: City of LA, SDCI: City of San Diego, LACO: LA County, ORCO: Orange County.}\label{fig:clust1_arch}
 \end{figure}
 
 
@@ -103,11 +103,11 @@
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!ht]
 
-{\centering \includegraphics[width=\textwidth]{figs/abundwwtp} 
+{\centering \includegraphics[width=0.8\textwidth]{figs/abundwwtp} 
 
 }
 
-\caption[Top ten genera by OTU abundance grouped by domain and municipality of wastewater treatment plants]{Top ten genera by OTU abundance grouped by domain and municipality of wastewater treatment plants.}\label{fig:abundwwtp}
+\caption[Top ten genera by OTU abundance grouped by municipality of wastewater treatment plants]{Top ten genera by OTU abundance grouped by municipality of wastewater treatment plants.}\label{fig:abundwwtp}
 \end{figure}
 
 
@@ -117,7 +117,7 @@
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!ht]
 
-{\centering \includegraphics[width=\textwidth]{figs/abundcont} 
+{\centering \includegraphics[width=0.8\textwidth]{figs/abundcont} 
 
 }
 
@@ -137,45 +137,44 @@
 
 }
 
-\caption[Estimates of Fisher's alpha diversity for archaea and bacteria genera grouped by municipality of wastewater treatment plant]{Estimates of Fisher's alpha diversity for archaea and bacteria genera grouped by municipality of wastewater treatment plant. Alpha was was based on methods in Fisher et al. (1943) that measure diversity as a function of richness and abundance at a site.}\label{fig:boxdivwwtp}
+\caption[Estimates of Fisher's alpha diversity for genera grouped by municipality of wastewater treatment plant]{Estimates of Fisher's alpha diversity for genera grouped by municipality of wastewater treatment plant. Alpha was was based on methods in Fisher et al. (1943) that measure diversity as a function of richness and abundance at a site.}\label{fig:boxdivwwtp}
 \end{figure}
 
 
 \end{knitrout}
 
 % Table created by stargazer v.5.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Fri, Nov 03, 2017 - 3:17:42 PM
+% Date and time: Fri, Nov 03, 2017 - 4:36:19 PM
 \begin{table}[!htbp] \centering 
-  \caption{Summary of analysis of variance results for bacteria and archaea diversity by municipality.  Diversity measures were based on Fisher's Alpha (Fisher et al. 1943) using abundance of genera at each site. The model intercept is the average diversity estimate (standard error in parentheses) at LACI and the remaining municipalities are referenced accordingly.} 
+  \caption{Summary of analysis of variance results for diversity by municipality.  Diversity measures were based on Fisher's Alpha (Fisher et al. 1943) using abundance of genera at each site. The model intercept is the average diversity estimate (standard error in parentheses) at LACI and the remaining municipalities are referenced accordingly.} 
   \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lcc} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
- & \multicolumn{2}{c}{Models} \\ 
-\cline{2-3} 
- & Bacteria & Archaea \\ 
+ & \multicolumn{1}{c}{Models} \\ 
+\cline{2-2} 
 \hline \\[-1.8ex] 
- Constant (LACI) & 74.422$^{***}$ & 4.462$^{***}$ \\ 
-  & (6.671) & (0.679) \\ 
-  & & \\ 
- LACO & 3.506 & $-$1.016 \\ 
-  & (8.825) & (0.898) \\ 
-  & & \\ 
- ORCO & $-$9.439 & $-$1.088 \\ 
-  & (9.434) & (0.960) \\ 
-  & & \\ 
- SDCI & 0.548 & $-$1.234 \\ 
-  & (8.825) & (0.898) \\ 
-  & & \\ 
+ Constant (LACI) & 77.316$^{***}$ \\ 
+  & (6.739) \\ 
+  & \\ 
+ LACO & 3.238 \\ 
+  & (8.915) \\ 
+  & \\ 
+ ORCO & $-$10.309 \\ 
+  & (9.530) \\ 
+  & \\ 
+ SDCI & $-$0.118 \\ 
+  & (8.915) \\ 
+  & \\ 
 \hline \\[-1.8ex] 
-Observations & 14 & 14 \\ 
-R$^{2}$ & 0.187 & 0.180 \\ 
-Adjusted R$^{2}$ & $-$0.057 & $-$0.066 \\ 
-Residual Std. Error (df = 10) & 11.554 & 1.176 \\ 
-F Statistic (df = 3; 10) & 0.767 & 0.730 \\ 
+Observations & 14 \\ 
+R$^{2}$ & 0.198 \\ 
+Adjusted R$^{2}$ & $-$0.043 \\ 
+Residual Std. Error & 11.672 (df = 10) \\ 
+F Statistic & 0.823 (df = 3; 10) \\ 
 \hline 
 \hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{2}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 \end{tabular} 
 \end{table} 
 
@@ -190,42 +189,41 @@ F Statistic (df = 3; 10) & 0.767 & 0.730 \\
 
 }
 
-\caption[Estimates of Fisher's alpha diversity for archaea and bacteria genera grouped by approximate distance from wastewater outflow pipes]{Estimates of Fisher's alpha diversity for archaea and bacteria genera grouped by approximate distance from wastewater outflow pipes. Alpha was was based on methods in Fisher et al. (1943) that measure diversity as a function of richness and abundance at a site.}\label{fig:boxdivcont}
+\caption[Estimates of Fisher's alpha diversity for genera grouped by approximate distance from wastewater outflow pipes]{Estimates of Fisher's alpha diversity for genera grouped by approximate distance from wastewater outflow pipes. Alpha was was based on methods in Fisher et al. (1943) that measure diversity as a function of richness and abundance at a site.}\label{fig:boxdivcont}
 \end{figure}
 
 
 \end{knitrout}
 
 % Table created by stargazer v.5.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Fri, Nov 03, 2017 - 3:17:46 PM
+% Date and time: Fri, Nov 03, 2017 - 4:36:23 PM
 \begin{table}[!htbp] \centering 
-  \caption{Summary of analysis of variance results for bacteria and archaea diversity with distance from outflow.  Diversity measures were based on Fisher's Alpha (Fisher et al. 1943) using abundance of genera at each site. The model intercept is the average diversity estimate (standard error in parentheses) at all close sites and the remaining parameter estimates (intermediate and farthest) are referenced accordingly.} 
+  \caption{Summary of analysis of variance results for diversity with distance from outflow.  Diversity measures were based on Fisher's Alpha (Fisher et al. 1943) using abundance of genera at each site. The model intercept is the average diversity estimate (standard error in parentheses) at all close sites and the remaining parameter estimates (intermediate and farthest) are referenced accordingly.} 
   \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lcc} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
- & \multicolumn{2}{c}{Models} \\ 
-\cline{2-3} 
- & Bacteria & Archaea \\ 
+ & \multicolumn{1}{c}{Models} \\ 
+\cline{2-2} 
 \hline \\[-1.8ex] 
- Constant (close) & 85.965$^{***}$ & 3.419$^{***}$ \\ 
-  & (3.797) & (0.591) \\ 
-  & & \\ 
- Intermediate & $-$14.252$^{**}$ & $-$0.061 \\ 
-  & (4.902) & (0.763) \\ 
-  & & \\ 
- Farthest & $-$22.048$^{***}$ & 0.678 \\ 
-  & (5.369) & (0.836) \\ 
-  & & \\ 
+ Constant (close) & 88.677$^{***}$ \\ 
+  & (3.877) \\ 
+  & \\ 
+ Intermediate & $-$14.723$^{**}$ \\ 
+  & (5.005) \\ 
+  & \\ 
+ Farthest & $-$22.289$^{***}$ \\ 
+  & (5.483) \\ 
+  & \\ 
 \hline \\[-1.8ex] 
-Observations & 14 & 14 \\ 
-R$^{2}$ & 0.614 & 0.087 \\ 
-Adjusted R$^{2}$ & 0.544 & $-$0.079 \\ 
-Residual Std. Error (df = 11) & 7.593 & 1.183 \\ 
-F Statistic (df = 2; 11) & 8.740$^{***}$ & 0.524 \\ 
+Observations & 14 \\ 
+R$^{2}$ & 0.611 \\ 
+Adjusted R$^{2}$ & 0.540 \\ 
+Residual Std. Error & 7.754 (df = 11) \\ 
+F Statistic & 8.627$^{***}$ (df = 2; 11) \\ 
 \hline 
 \hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{2}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 \end{tabular} 
 \end{table} 
 

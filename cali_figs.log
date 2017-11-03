@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2017.9.18)  3 NOV 2017 15:17
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2017.9.18)  3 NOV 2017 16:36
 entering extended mode
 **./cali_figs.tex
 (cali_figs.tex
@@ -812,40 +812,40 @@ File: figs/sites.jpg Graphic file (type jpg)
 Package pdftex.def Info: figs/sites.jpg used on input line 84.
 (pdftex.def)             Requested size: 469.75502pt x 469.75604pt.
 Package color Info: Redefining color shadecolor on input line 91.
- <figs/clust1_arch.pdf, id=4, 578.16pt x 578.16pt>
+ <figs/clust1_arch.pdf, id=4, 289.08pt x 578.16pt>
 File: figs/clust1_arch.pdf Graphic file (type pdf)
 
 <use figs/clust1_arch.pdf>
 Package pdftex.def Info: figs/clust1_arch.pdf used on input line 93.
-(pdftex.def)             Requested size: 469.75502pt x 469.75385pt.
+(pdftex.def)             Requested size: 234.8775pt x 469.75385pt.
 Package color Info: Redefining color shadecolor on input line 104.
- <figs/abundwwtp.pdf, id=5, 578.16pt x 650.43pt>
+ <figs/abundwwtp.pdf, id=5, 433.62pt x 650.43pt>
 File: figs/abundwwtp.pdf Graphic file (type pdf)
 
 <use figs/abundwwtp.pdf>
 Package pdftex.def Info: figs/abundwwtp.pdf used on input line 106.
-(pdftex.def)             Requested size: 469.75502pt x 528.47307pt.
+(pdftex.def)             Requested size: 375.80544pt x 563.7357pt.
  [1{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map} <./figs/sites.jpg>] [2 
 <./figs/clust1_arch.pdf>] [3 <./figs/abundwwtp.pdf>]
 Package color Info: Redefining color shadecolor on input line 118.
 
-<figs/abundcont.pdf, id=35, 578.16pt x 505.89pt>
+<figs/abundcont.pdf, id=35, 433.62pt x 505.89pt>
 File: figs/abundcont.pdf Graphic file (type pdf)
  <use figs/abundcont.pdf>
 Package pdftex.def Info: figs/abundcont.pdf used on input line 120.
-(pdftex.def)             Requested size: 469.75502pt x 411.0346pt.
+(pdftex.def)             Requested size: 375.80544pt x 438.46109pt.
 
 [4
 
 
  <./figs/abundcont.pdf>]
 Package color Info: Redefining color shadecolor on input line 134.
- <figs/boxdivwwtp.pdf, id=47, 433.62pt x 289.08pt>
+ <figs/boxdivwwtp.pdf, id=47, 433.62pt x 144.54pt>
 File: figs/boxdivwwtp.pdf Graphic file (type pdf)
 
 <use figs/boxdivwwtp.pdf>
 Package pdftex.def Info: figs/boxdivwwtp.pdf used on input line 136.
-(pdftex.def)             Requested size: 433.61894pt x 289.09251pt.
+(pdftex.def)             Requested size: 433.61894pt x 144.54623pt.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <12> on input line 151.
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -855,35 +855,35 @@ LaTeX Font Info:    External font `cmex10' loaded for size
  [5
 
 
- <./figs/boxdivwwtp.pdf>] [6]
-Package color Info: Redefining color shadecolor on input line 187.
+ <./figs/boxdivwwtp.pdf>]
+Package color Info: Redefining color shadecolor on input line 186.
 
-<figs/boxdivcont.pdf, id=72, 433.62pt x 289.08pt>
+<figs/boxdivcont.pdf, id=68, 433.62pt x 144.54pt>
 File: figs/boxdivcont.pdf Graphic file (type pdf)
  <use figs/boxdivcont.pdf>
-Package pdftex.def Info: figs/boxdivcont.pdf used on input line 189.
-(pdftex.def)             Requested size: 433.61894pt x 289.09251pt.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 233.
+Package pdftex.def Info: figs/boxdivcont.pdf used on input line 188.
+(pdftex.def)             Requested size: 433.61894pt x 144.54623pt.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 231.
 
-[7
+[6
 
- <./figs/boxdivcont.pdf>] [8]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 233.
+ <./figs/boxdivcont.pdf>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 231.
  (cali_figs.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 233.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 233.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 231.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 231.
 Package rerunfilecheck Info: File `cali_figs.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 233.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 231.
  ) 
 Here is how much of TeX's memory you used:
- 18860 strings out of 493323
- 342666 string characters out of 3139036
- 442258 words of memory out of 3000000
+ 18858 strings out of 493323
+ 342654 string characters out of 3139036
+ 441258 words of memory out of 3000000
  22200 multiletter control sequences out of 15000+200000
  533355 words of font info for 32 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -894,9 +894,9 @@ es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX
 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/font
 s/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
 ublic/amsfonts/cm/cmti12.pfb>
-Output written on cali_figs.pdf (8 pages, 987568 bytes).
+Output written on cali_figs.pdf (6 pages, 976499 bytes).
 PDF statistics:
- 118 PDF objects out of 1000 (max. 8388607)
- 17 named destinations out of 1000 (max. 500000)
+ 108 PDF objects out of 1000 (max. 8388607)
+ 15 named destinations out of 1000 (max. 500000)
  31 words of extra memory for PDF output out of 10000 (max. 10000000)
 

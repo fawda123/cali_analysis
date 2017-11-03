@@ -79,20 +79,10 @@ sitexp <- paste0('expression(', sitlab, ')')
 gendat <- gendat %>% 
   ungroup %>% 
   mutate(site = factor(site, levels = sitlev, labels = sitlab))
-
-# genera by archea
-arcdat <- gendat %>% 
-  filter(domain %in% 'Archaea')
-
-# genera by bacteria
-bacdat <- gendat %>% 
-  filter(domain %in% 'Bacteria')
 @
 
-<<clust1_arch, fig.cap = "Site clusters and ordinations of microbial genera by domain.  Colors indicate municipality and subscripts indicate distance categories from an outflow pipe at each site (`F' is farthest, `C' is closest, `I' is intermediate).  Clustering was based on a Bray-Curtis dissimilarity matrix of abundance data and sorting using the unweighted pair group method.  Ordinations were based on multi-dimensional scaling with two axes for the same data.  Abundance data were log-transformed prior to analysis. LACI: City of LA, SDCI: City of San Diego, LACO: LA County, ORCO: Orange County.", out.width = '\\textwidth', fig.height = 8, fig.width = 8, echo = F>>=
+<<clust1_arch, fig.cap = "Site clusters and ordinations of microbial genera.  Colors indicate municipality and subscripts indicate distance categories from an outflow pipe at each site (`F' is farthest, `C' is closest, `I' is intermediate).  Clustering was based on a Bray-Curtis dissimilarity matrix of abundance data and sorting using the unweighted pair group method.  Ordinations were based on multi-dimensional scaling with two axes for the same data.  Abundance data were log-transformed prior to analysis. LACI: City of LA, SDCI: City of San Diego, LACO: LA County, ORCO: Orange County.", out.width = '0.5\\textwidth', fig.height = 8, fig.width = 4, echo = F>>=
 # vegan approach
-
-doms <- c('Archaea', 'Bacteria')
 
 # base ggplot 
 pbase <- ggplot() +
@@ -117,25 +107,23 @@ lims <- list(
   Bacteria = c(-0.2, 0.32)
 )
 
-for(dom in doms){
+# format 
+dat <- gendat
+dat <- dplyr::select(dat, genus, site, wwtp, cont, abund)
+dat <- spread(dat, genus, abund, fill = 0) %>% 
+  as.data.frame(stringAsFactors = F)
+row.names(dat) <- dat$site
 
-  # format 
-  dat <- gendat[gendat$domain %in% dom, ]
-  dat <- dplyr::select(dat, genus, site, wwtp, cont, abund)
-  dat <- spread(dat, genus, abund, fill = 0) %>% 
-    as.data.frame(stringAsFactors = F)
-  row.names(dat) <- dat$site
+##
+# clustering
 
-  ##
-  # clustering
-  
-  # clusts using all data
-  # log transform for zeroes
-  # create distance matrix
-  datall <- dplyr::select(dat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'log') %>% 
-    vegdist(method = 'bray') %>% 
-    hclust(method = 'average')
+# clusts using all data
+# log transform for zeroes
+# create distance matrix
+datall <- dplyr::select(dat, -site, -wwtp, -cont) %>% 
+  decostand(method = 'log') %>% 
+  vegdist(method = 'bray') %>% 
+  hclust(method = 'average')
 
   hcdata <- dendro_data(datall, type="rectangle")
   
@@ -146,38 +134,36 @@ for(dom in doms){
     labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
   )
 
-  p <- pbase + 
-    guides(color = guide_legend(title = 'Municipality')) +
-    geom_segment(data=segment(hcdata), aes(x=x, y=y, xend=xend, yend=yend)) +
-    geom_text(data = hcdata$labels, aes(x=x, y=y, label=label, colour = wwtp, hjust=0), size=4, parse = T, angle = 90, hjust = 1) + 
-    ggtitle(toupper(dom)) + 
-    theme(legend.position = 'none')
+pcls <- pbase + 
+  guides(color = guide_legend(title = 'Municipality')) +
+  geom_segment(data=segment(hcdata), aes(x=x, y=y, xend=xend, yend=yend)) +
+  geom_text(data = hcdata$labels, aes(x=x, y=y, label=label, colour = wwtp, hjust=0), size=4, parse = T, angle = 90, hjust = 1) + 
+  # ggtitle(toupper(dom)) + 
+  theme(legend.position = 'none')
 
-  assign(paste0('p', dom, 'cls'), p)
-  
-  ##
-  # ordination
-  ord <- dplyr::select(dat, -site, -wwtp, -cont) %>% 
-    decostand(method = 'log') %>% 
-    metaMDS(distance = 'bray', trace = 0, autotransform = F, k = 2)
-  
-  dat$wwtp <- factor(dat$wwtp, levels = c('LACI', 'SDCI', 'LACO', 'ORCO'), 
-    labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
-  )
-  
-  p <- ggord(ord, dat$wwtp, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 4, obslab = T, ellipse = F, 
-      hull = T, parse = T, poly = F, ellipse_pro = 0.95, alpha = 0.8) +
-    scale_colour_brewer(palette = "Set1") +
-    theme(
-      legend.position = 'none', 
-      axis.title.y = element_blank()
-      ) + 
-    scale_x_continuous('MDS1',limits = lims[[dom]])  +
-    scale_y_continuous(limits = lims[[dom]])
+##
+# ordination
+ord <- dplyr::select(dat, -site, -wwtp, -cont) %>% 
+  decostand(method = 'log') %>% 
+  metaMDS(distance = 'bray', trace = 0, autotransform = F, k = 2)
 
-  assign(paste0('p', dom, 'ord'), p)
+dat$wwtp <- factor(dat$wwtp, levels = c('LACI', 'SDCI', 'LACO', 'ORCO'), 
+  labels = c('City of LA', 'City of San Diego', 'LA County', 'Orange County')
+)
+
+pord <- ggord(ord, dat$wwtp, axes = c("1", "2"), arrow = NULL, txt = NULL, size = 4, obslab = T, ellipse = F, 
+    hull = T, parse = T, poly = F, ellipse_pro = 0.95, alpha = 0.8) +
+  scale_colour_brewer(palette = "Set1") +
+  theme(
+    legend.position = 'none', 
+    axis.title.y = element_blank()
+    ) + 
+  scale_x_continuous('MDS1') # ,limits = lims[[dom]])  +
+  # scale_y_continuous(limits = lims[[dom]])
+
+
   
-}
+
 
 # legend
 p <- ggplot(dat, aes(x = wwtp, y = wwtp, colour = wwtp)) + 
@@ -192,16 +178,16 @@ pleg <- g_legend(p)
 
 # combine all
 grid.arrange(
-  arrangeGrob(pArchaeacls, pBacteriacls, ncol = 2, left = 'Distance'), 
+  arrangeGrob(pcls, ncol = 1, left = 'Distance'), 
   pleg,
-  arrangeGrob(pArchaeaord, pBacteriaord, ncol = 2, left = 'MDS2'), 
+  arrangeGrob(pord, ncol = 1, left = 'MDS2'), 
   ncol = 1, 
   heights = c(1, 0.05, 1)
 )
 
 @
 
-<<abundwwtp, fig.cap='Top ten genera by OTU abundance grouped by domain and municipality of wastewater treatment plants.', echo = F, fig.height = 9, fig.width = 8, out.width = '\\textwidth'>>=
+<<abundwwtp, fig.cap='Top ten genera by OTU abundance grouped by municipality of wastewater treatment plants.', echo = F, fig.height = 9, fig.width = 6, out.width = '0.8\\textwidth'>>=
 
 # colors
 colfun <- RColorBrewer::brewer.pal(9, 'Blues') %>% 
@@ -209,10 +195,10 @@ colfun <- RColorBrewer::brewer.pal(9, 'Blues') %>%
 
 # most abundant species, all sites
 toplo1 <- gendat %>% 
-  dplyr::select(domain, wwtp, genus, abund) %>% 
-  group_by(domain, wwtp, genus) %>% 
+  dplyr::select(wwtp, genus, abund) %>% 
+  group_by(wwtp, genus) %>% 
   summarise(abund = sum(abund)) %>% 
-  group_by(domain, wwtp) %>% 
+  group_by(wwtp) %>% 
   nest %>% 
   mutate(
     subdat = map(data, function(x){
@@ -229,7 +215,7 @@ toplo1 <- gendat %>%
     genus = gsub('_', ' ', genus), 
     cols = colfun(length(abund))[rank(abund)]
   ) %>% 
-  split(., .[, c('domain', 'wwtp')])
+  split(., .[, c('wwtp')])
 
 for(i in seq_along(names(toplo1))){
   
@@ -241,14 +227,15 @@ for(i in seq_along(names(toplo1))){
   p <- ggplot(tmp, aes(x = genus, y = abund, fill = abund)) + 
     geom_bar(stat = 'identity', colour = 'black', fill = tmp$cols) + 
     ylab('Abundance') + 
-    facet_wrap(wwtp ~ domain, ncol = 2, scales = 'free') + 
+    facet_wrap( ~ wwtp, ncol = 2, scales = 'free') + 
     theme_bw() + 
     scale_fill_gradientn(colours = brewer.pal(9, 'Blues')) +
     theme(legend.position = "none", 
       axis.title.y = element_blank(),
-      axis.text.y = element_text(size = 6), 
+      axis.text.y = element_text(size = 8), 
       axis.title.x = element_blank()
-      )+ 
+      ) + 
+    scale_y_continuous(expand = c(0, 0)) +
     coord_flip()
   
   assign(paste0('p', i), p) 
@@ -260,27 +247,19 @@ pA <- ggplot_gtable(ggplot_build(p1))
 pB <- ggplot_gtable(ggplot_build(p2))
 pC <- ggplot_gtable(ggplot_build(p3))
 pD <- ggplot_gtable(ggplot_build(p4))
-pE <- ggplot_gtable(ggplot_build(p5))
-pF <- ggplot_gtable(ggplot_build(p6))
-pG <- ggplot_gtable(ggplot_build(p7))
-pH <- ggplot_gtable(ggplot_build(p8))
-maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3], pD$widths[2:3], pE$widths[2:3], pF$widths[2:3], pG$widths[2:3], pH$widths[2:3])
+maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3], pD$widths[2:3])
 
 # Set the widths
 pA$widths[2:3] <- maxWidth
 pB$widths[2:3] <- maxWidth
 pC$widths[2:3] <- maxWidth
 pD$widths[2:3] <- maxWidth
-pE$widths[2:3] <- maxWidth
-pF$widths[2:3] <- maxWidth
-pG$widths[2:3] <- maxWidth
-pH$widths[2:3] <- maxWidth
 
-grid.arrange(pA, pB, pC, pD, pE, pF, pG, pH, ncol = 2, bottom = 'Abundance')
+grid.arrange(pA, pB, pC, pD, ncol = 1, bottom = 'Abundance')
 @
 \clearpage
 
-<<abundcont, fig.cap='Top ten genera by OTU abundance grouped by approximate distance from wastewater treatment outflows.', echo = F, fig.height = 7, fig.width = 8, out.width = '\\textwidth'>>=
+<<abundcont, fig.cap='Top ten genera by OTU abundance grouped by approximate distance from wastewater treatment outflows.', echo = F, fig.height = 7, fig.width = 6, out.width = '0.8\\textwidth'>>=
 
 # colors
 colfun <- RColorBrewer::brewer.pal(9, 'Blues') %>% 
@@ -288,10 +267,10 @@ colfun <- RColorBrewer::brewer.pal(9, 'Blues') %>%
 
 # most abundant species, all sites
 toplo2 <- gendat %>% 
-  dplyr::select(domain, cont, genus, abund) %>% 
-  group_by(domain, cont, genus) %>% 
+  dplyr::select(cont, genus, abund) %>% 
+  group_by(cont, genus) %>% 
   summarise(abund = sum(abund)) %>% 
-  group_by(domain, cont) %>% 
+  group_by(cont) %>% 
   nest %>% 
   mutate(
     subdat = map(data, function(x){
@@ -309,7 +288,7 @@ toplo2 <- gendat %>%
     cont = factor(cont, levels = c('clo', 'int', 'far'), labels = c('Close', 'Intermediate', 'Far')), 
     cols = colfun(length(abund))[rank(abund)]
   ) %>% 
-  split(., .[, c('domain', 'cont')])
+  split(., .[, c('cont')])
 
 for(i in seq_along(names(toplo2))){
   
@@ -317,18 +296,18 @@ for(i in seq_along(names(toplo2))){
     arrange(abund) %>% 
     mutate(genus = factor(genus, levels = genus))
   
-  
   p <- ggplot(tmp, aes(x = genus, y = abund, fill = abund)) + 
     geom_bar(stat = 'identity', colour = 'black', fill = tmp$cols) + 
     ylab('Abundance') + 
-    facet_wrap(cont ~ domain, ncol = 2, scales = 'free') + 
+    facet_wrap(~ cont, ncol = 2, scales = 'free') + 
     theme_bw() + 
     scale_fill_gradientn(colours = brewer.pal(9, 'Blues')) +
     theme(legend.position = "none", 
       axis.title.y = element_blank(),
-      axis.text.y = element_text(size = 6), 
+      axis.text.y = element_text(size = 8), 
       axis.title.x = element_blank()
       )+ 
+    scale_y_continuous(expand = c(0, 0)) +
     coord_flip()
   
   assign(paste0('p', i), p) 
@@ -339,48 +318,30 @@ for(i in seq_along(names(toplo2))){
 pA <- ggplot_gtable(ggplot_build(p1))
 pB <- ggplot_gtable(ggplot_build(p2))
 pC <- ggplot_gtable(ggplot_build(p3))
-pD <- ggplot_gtable(ggplot_build(p4))
-pE <- ggplot_gtable(ggplot_build(p5))
-pF <- ggplot_gtable(ggplot_build(p6))
-maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3], pD$widths[2:3], pE$widths[2:3], pF$widths[2:3])
+maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3])
 
 # Set the widths
 pA$widths[2:3] <- maxWidth
 pB$widths[2:3] <- maxWidth
 pC$widths[2:3] <- maxWidth
-pD$widths[2:3] <- maxWidth
-pE$widths[2:3] <- maxWidth
-pF$widths[2:3] <- maxWidth
 
-grid.arrange(pA, pB, pC, pD, pE, pF, ncol = 2, bottom = 'Abundance')
+
+grid.arrange(pA, pB, pC, ncol = 1, bottom = 'Abundance')
 @
 \clearpage
 
 \clearpage
 % ANOVA wwtp
-<<boxdivwwtp, echo = F, message = F, warning = F, fig.height = 4, fig.width = 6, fig.cap = "Estimates of Fisher's alpha diversity for archaea and bacteria genera grouped by municipality of wastewater treatment plant. Alpha was was based on methods in Fisher et al. (1943) that measure diversity as a function of richness and abundance at a site.">>=
+<<boxdivwwtp, echo = F, message = F, warning = F, fig.height = 2, fig.width = 6, fig.cap = "Estimates of Fisher's alpha diversity for genera grouped by municipality of wastewater treatment plant. Alpha was was based on methods in Fisher et al. (1943) that measure diversity as a function of richness and abundance at a site.">>=
 
 alph <- gendat %>% 
-  dplyr::select(domain, site, genus, abund) %>% 
-  group_by(domain) %>% 
-  nest %>% 
-  mutate(alph = map(data, function(x){
-    
-    out <- x %>% 
-      spread(genus, abund) %>% 
-      as.data.frame(stringsAsFactors = F)
-    row.names(out) <- out$site
-    out <- out %>% 
-      dplyr::select(-site) %>% 
-      fisher.alpha %>% 
-      enframe(name = 'site', value = 'alph')
-      
-    return(out)
-    
-    })
-  ) %>% 
-  dplyr::select(-data) %>% 
-  unnest %>% 
+  dplyr::select(site, genus, abund) %>% 
+  spread(genus, abund) %>% 
+  as.data.frame(stringsAsFactors = F) %>% 
+  remove_rownames %>% 
+  column_to_rownames('site') %>% 
+  fisher.alpha %>% 
+  enframe(name = 'site', value = 'alph') %>% 
   mutate(
     wwtp = gsub('\\s.*$', '', site),
     cont = gsub('^.*\\s', '', site), 
@@ -389,61 +350,44 @@ alph <- gendat %>%
     )
 
 # get anova mods
-mods <- group_by(alph, domain) %>% 
-  nest %>% 
-  mutate(
-    reswwtp = map(data, function(x){
-      
-      mod <- lm(alph ~ wwtp, data = x)
-  
-      return(mod)
-      
-    }), 
-    rescont = map(data, function(x){
-      
-      mod <- lm(alph ~ cont, data = x)
-  
-      return(mod)
-      
-    })
-  ) %>% 
-  dplyr::select(-data)
+mods <- list(
+  reswwtp = lm(alph ~ wwtp, data = alph), 
+  rescont = lm(alph ~ cont, data = alph)
+)
 
 pwwtp <- ggplot(alph, aes(x = wwtp, y = alph)) + 
   geom_boxplot() + 
   geom_jitter(width = 0.2, colour = 'darkgrey', size = 1, alpha = 0.6) + 
-  facet_wrap(~ domain, scales = 'free_y', ncol = 1) + 
   theme_bw() +
   scale_x_discrete('Municipality') + 
   scale_y_continuous("Fisher's Alpha Diversity")
 pwwtp
 @
 <<echo = F, results = 'asis'>>=
-stargazer(mods$reswwtp, column.labels = c('Bacteria', 'Archaea'), 
+stargazer(mods$reswwtp, #column.labels = c('Bacteria', 'Archaea'), 
   dep.var.labels.include = F, intercept.bottom = F, model.numbers = F, 
   dep.var.caption = 'Models', covariate.labels = c('Constant (LACI)', 'LACO', 'ORCO', 'SDCI'), 
-  title = "Summary of analysis of variance results for bacteria and archaea diversity by municipality.  Diversity measures were based on Fisher's Alpha (Fisher et al. 1943) using abundance of genera at each site. The model intercept is the average diversity estimate (standard error in parentheses) at LACI and the remaining municipalities are referenced accordingly."
+  title = "Summary of analysis of variance results for diversity by municipality.  Diversity measures were based on Fisher's Alpha (Fisher et al. 1943) using abundance of genera at each site. The model intercept is the average diversity estimate (standard error in parentheses) at LACI and the remaining municipalities are referenced accordingly."
   )
 @
 
 
 \clearpage
 % alpha by pipe
-<<boxdivcont, echo = F, message = F, warning = F, fig.height = 4, fig.width = 6,  fig.cap = "Estimates of Fisher's alpha diversity for archaea and bacteria genera grouped by approximate distance from wastewater outflow pipes. Alpha was was based on methods in Fisher et al. (1943) that measure diversity as a function of richness and abundance at a site.">>=
+<<boxdivcont, echo = F, message = F, warning = F, fig.height = 2, fig.width = 6,  fig.cap = "Estimates of Fisher's alpha diversity for genera grouped by approximate distance from wastewater outflow pipes. Alpha was was based on methods in Fisher et al. (1943) that measure diversity as a function of richness and abundance at a site.">>=
 pcont <- ggplot(alph, aes(x = cont, y = alph)) + 
   geom_boxplot() + 
   geom_jitter(width = 0.2, colour = 'darkgrey', size = 1, alpha = 0.6) + 
-  facet_wrap(~ domain, scales = 'free_y', ncol = 1) + 
   theme_bw() + 
   scale_x_discrete('Distance from outflow') + 
   scale_y_continuous("Fisher's Alpha Diversity")
 pcont
 @
 <<echo = F, results = 'asis'>>=
-stargazer(mods$rescont, column.labels = c('Bacteria', 'Archaea'), 
+stargazer(mods$rescont, #column.labels = c('Bacteria', 'Archaea'), 
   dep.var.labels.include = F, intercept.bottom = F, model.numbers = F, 
   dep.var.caption = 'Models', covariate.labels = c('Constant (close)', 'Intermediate', 'Farthest'), 
-  title = "Summary of analysis of variance results for bacteria and archaea diversity with distance from outflow.  Diversity measures were based on Fisher's Alpha (Fisher et al. 1943) using abundance of genera at each site. The model intercept is the average diversity estimate (standard error in parentheses) at all close sites and the remaining parameter estimates (intermediate and farthest) are referenced accordingly."
+  title = "Summary of analysis of variance results for diversity with distance from outflow.  Diversity measures were based on Fisher's Alpha (Fisher et al. 1943) using abundance of genera at each site. The model intercept is the average diversity estimate (standard error in parentheses) at all close sites and the remaining parameter estimates (intermediate and farthest) are referenced accordingly."
   )
 @
 
