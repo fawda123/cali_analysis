@@ -58,7 +58,7 @@ source('R/funcs.R')
 \begin{document}
 
 \begin{figure}
-\includegraphics[width = \textwidth]{figs/sites.jpg}
+\includegraphics[width = \textwidth]{figs/outflow_map.jpg}
 \caption{Sampling stations grouped by municipality and approximate distance from wastewater treatment plant outflow pipes. Distances are close (clo), intermediate (int), and far. Municipalities are city of Los Angeles (LACI), city of San Diego (SDCI), Los Angeles County (LACO), and Orange County (ORCO).} 
 \end{figure}
 

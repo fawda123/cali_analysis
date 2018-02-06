@@ -27,3 +27,5 @@ MASS
 memisc
 stringi
 stargazer
+stringr
+forcats
