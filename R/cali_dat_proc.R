@@ -3,6 +3,7 @@ library(dplyr)
 library(tidyr)
 library(missMDA)
 library(FactoMineR)
+library(here)
 
 ######
 # taxonomic abundance data
@@ -252,6 +253,34 @@ dists <- read_excel('ignore/Latitude longitude data 2Feb2016.xlsx') %>%
 
 save(dists, file = 'data/dists.RData')
   
+######
+# get table of genera relative abundances
+
+load(file = here('data', 'abudat.RData'))
+
+sitlkup <- tibble(
+  sitlev = c('CA1', 'CA10', 'CA11', 'CA12', 'CA13', 'CA14', 'CA2', 'CA3', 'CA4', 'CA5', 'CA6', 'CA7', 'CA8', 'CA9'),
+  citlab = c('LACO', 'ORCO', 'SDCI', 'ORCO', 'LACI', 'LACI', 'LACO', 'LACO', 'LACO', 'ORCO', 'LACI', 'SDCI', 'SDCI', 'SDCI'),
+  cntlab = c('i1', 'i1', 'i1', 'c', 'f', 'i1', 'c', 'i2', 'f', 'f', 'c', 'c', 'f', 'i2')
+)
+
+genper <- abudat$GENUS %>% 
+  ungroup %>% 
+  dplyr::rename(sitlev = site) %>% 
+  left_join(sitlkup, by = 'sitlev') %>% 
+  dplyr::select(citlab, cntlab, genus,  abund) %>% 
+  filter(abund > 0) %>% 
+  group_by(citlab, cntlab) %>% 
+  mutate(
+    per = 100 * abund / sum(abund)
+  ) %>% 
+  ungroup %>% 
+  dplyr::select(-abund) %>% 
+  unite('site', citlab, cntlab, sep = '') %>% 
+  spread(site, per, fill = 0) %>% 
+  arrange(-LACIc)
+
+write.csv(genper, here('word', 'genper.csv'), quote = F, row.names = F)
 
   
 
