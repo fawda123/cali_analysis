@@ -50,6 +50,7 @@ library(pander)
 library(memisc)
 library(stringi)
 library(stargazer)
+library(colorspace)
 source('R/funcs.R')
 @
 
@@ -327,6 +328,69 @@ pC$widths[2:3] <- maxWidth
 
 
 grid.arrange(pA, pB, pC, ncol = 1, bottom = 'Abundance')
+@
+\clearpage
+
+<<abuplo, echo = F, message = F, warning = F, fig.height= 6, fig.width = 6, out.width = '0.8\\textwidth', fig.cap = "Relative abunances of top ten phyla based on wastewater-treatment plant (municipality) and distance from the outfall pipe as determined by percent abundance. LACI is City of Los Angeles; SDCI is City of San Diego, LACO is Los Angeles County and ORCO is Orange County, California.">>=
+
+load(file = 'data/abudat.RData')
+
+sitlkup <- tibble(
+  sitlev = c('CA1', 'CA10', 'CA11', 'CA12', 'CA13', 'CA14', 'CA2', 'CA3', 'CA4', 'CA5', 'CA6', 'CA7', 'CA8', 'CA9'),
+  citlab = c('LACO', 'ORCO', 'SDCI', 'ORCO', 'LACI', 'LACI', 'LACO', 'LACO', 'LACO', 'ORCO', 'LACI', 'SDCI', 'SDCI', 'SDCI'),
+  cntlab = c('i1', 'i1', 'i1', 'c', 'f', 'i1', 'c', 'i2', 'f', 'f', 'c', 'c', 'f', 'i2')
+  )
+
+# get all abundances
+tops <- abudat$PHYLUM %>%
+  group_by(phylum) %>% 
+  summarise(abund = sum(abund)) %>% 
+  ungroup %>% 
+  mutate(
+    rnk = rank(-abund, ties.method = 'first')
+  ) %>% 
+  filter(rnk <= 10) %>%
+  pull(phylum)
+  
+dat <- abudat$PHYLUM %>% 
+  ungroup %>% 
+  dplyr::rename(sitlev = site) %>% 
+  left_join(sitlkup, by = 'sitlev') %>% 
+  dplyr::select(citlab, cntlab, phylum,  abund) %>% 
+  filter(abund > 0) %>% 
+  filter(!grepl('[0-9]', phylum)) %>% 
+  filter(!grepl('\\_', phylum)) %>% 
+  filter(phylum %in% tops) %>% 
+  group_by(citlab, cntlab) %>% 
+  mutate(
+    per = abund / sum(abund)
+  ) %>% 
+  ungroup %>% 
+  mutate(
+    cntlab = factor(cntlab, levels = c('c', 'i1', 'i2', 'f'))
+  )
+
+ggplot(dat, aes(x = cntlab, y = per, fill = reorder(phylum, abund))) +
+  geom_bar(stat = 'identity') + 
+  facet_wrap(~citlab, scales = 'free_x', ncol = 4) + 
+  scale_y_continuous(labels = scales::percent, expand = c(0, 0)) + 
+  scale_fill_discrete_qualitative(palette = 'Dark3') + 
+  labs(
+    title = "Relative abundances of top ten phyla", 
+    subtitle = "Grouped by municipality and distance from outfall",
+    x = "Relative distances from outfall source",
+    caption = "c: close; i1, i2: intermediate; f: far"
+  ) + 
+  theme_bw(base_family = 'serif') + 
+  theme(
+    axis.title.y= element_blank(), 
+    legend.title = element_blank(), 
+    strip.background = element_blank(), 
+    panel.border = element_blank(), 
+    panel.grid = element_blank()
+  ) + 
+  guides(fill = guide_legend(ncol = 1))
+         
 @
 \clearpage
 
